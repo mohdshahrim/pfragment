@@ -1,10 +1,14 @@
 package main
 
 import (
-	"fmt"
-	"log"
 	"net/http"
-	"html/template"
-	_ "database/sql"
 	"github.com/gorilla/mux"
 )
+
+func AboutHandler(r *mux.Router) {
+	r.HandleFunc("/about", PageAbout)
+}
+
+func PageAbout(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "template/about.html")
+}

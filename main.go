@@ -26,6 +26,7 @@ func main() {
 
 	// routes handled in separate go files
 	UserHandler(r) // user.go
+	AboutHandler(r) // about.go
 
 	// start the server
 	fmt.Println("Starting server...")
