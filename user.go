@@ -95,6 +95,17 @@ func PageAccount(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func (p PageAccountStruct) UserPermission(permission string, usergroup string) bool {
+	switch permission {
+	case "update_own_password":
+		return UpdateOwnPassword(usergroup)
+	case "update_user_password":
+		return UpdateUserPassword(usergroup)
+	default:
+		return false
+	}
+}
+
 // function to verify whether the username exist or not
 func UsernameExist(username string) bool {
 	// Connect to SQLite database
