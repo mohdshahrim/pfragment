@@ -28,6 +28,8 @@ func UserHandler(r *mux.Router) {
 	//r.HandleFunc("/user/login", UserLogin).Methods("POST")
 	r.HandleFunc("/user/login", UserLogin)
 	r.HandleFunc("/user/account", PageAccount)
+	r.HandleFunc("/user/password", PageUpdatePassword)
+	r.HandleFunc("/user/password/update", UserUpdatePassword)
 	r.HandleFunc("/user/logout", UserLogout)
 }
 
@@ -95,6 +97,23 @@ func PageAccount(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func PageUpdatePassword(w http.ResponseWriter, r *http.Request) {	
+	if IsAuthenticated(w,r) {
+		session, _ := store.Get(r, "cookie-name")
+		data := ReadUserAccount(session.Values["username"].(string))
+
+		if UpdateOwnPassword(data.Usergroup) {	
+			tmpl := template.Must(template.ParseFiles("template/user/password.html"))
+			tmpl.Execute(w, data)
+		} else {
+			//NOTE: assuming user previously came from "/user/account"
+			http.Redirect(w, r, "/user/account", 302)
+		}
+	} else {
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
 func (p PageAccountStruct) UserPermission(permission string, usergroup string) bool {
 	switch permission {
 	case "update_own_password":
@@ -104,6 +123,11 @@ func (p PageAccountStruct) UserPermission(permission string, usergroup string) b
 	default:
 		return false
 	}
+}
+
+// performs password update procedure
+func UserUpdatePassword(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("test test")
 }
 
 // function to verify whether the username exist or not
