@@ -127,7 +127,44 @@ func (p PageAccountStruct) UserPermission(permission string, usergroup string) b
 
 // performs password update procedure
 func UserUpdatePassword(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("test test")
+	if IsAuthenticated(w,r) {
+		username := r.FormValue("username")
+
+		if UsernameExist(username) {
+			oldpassword := r.FormValue("oldpassword")
+
+			if PasswordIsValid(username, oldpassword) {
+				newpassword := r.FormValue("newpassword")
+				//confirmpassword := r.FormValue("confirmpassword")
+
+				// begin procedure of updating password
+				db, errOpen := sql.Open("sqlite3", "./database/core.db")
+				if errOpen != nil {
+					log.Fatal(errOpen)
+				}
+				defer db.Close()
+
+				//NOTE skip password confirmation, assume the new password is correct
+				
+				id := GetUserId(username)
+
+				query := `UPDATE user SET password = ? WHERE id = ?`
+				_, err := db.Exec(query, newpassword, id)
+				if err != nil {
+					log.Fatal(err)
+				}
+				// success
+				http.ServeFile(w, r, "template/user/pwduptok.html")
+			} else {
+				//
+			}
+		} else {
+			//
+		}
+	} else {
+		http.Redirect(w, r, "/", 302)
+	}
+
 }
 
 // function to verify whether the username exist or not

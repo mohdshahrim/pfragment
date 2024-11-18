@@ -1,0 +1,67 @@
+<!-- pwduptok = password update okay (success) -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>project fragment</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        .div-left {
+            top: 0;
+            padding-left: 5px;
+            padding-right: 5px;
+            display: block;
+            position: absolute;
+            width: 150px;
+            height: 100%;
+            border-right: 1px black solid;
+        }
+        .div-right {
+            top: 0;
+            margin-left: 200px;
+            margin-right: 50px;
+        }
+        .div-menu {
+            margin-top: 50px;
+            width: 100%;
+            padding-left: 5px;
+        }
+        .div-appcontainer {
+            width: 100%;
+            padding-top: 35px;
+        }
+        .div-app {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            border-radius: 6px;
+            border: 1px gray solid;
+            margin-right: 15px;
+            margin-top: 15px;
+            padding: 5px;
+        }
+        .div-app:hover {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="div-left">
+        <h4 style="text-align:center;">project fragment</h4>
+        <div class="div-menu">
+            <p><a href="/user">home</a></p>
+            <p><a href="/user/account">account</a></p>
+            <p><a href="/about">about</a></p>
+            <p><a href="/user/logout">logout</a></p>
+        </div>
+    </div>
+    <div class="div-right">
+        <h2>password update success</h2>
+    </div>
+</body>
+</html>
