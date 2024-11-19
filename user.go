@@ -23,6 +23,11 @@ type PageAccountStruct struct {
 	Usergroup	string
 }
 
+type PagePasswordStruct struct {
+	Username	string
+	Message		string
+}
+
 func UserHandler(r *mux.Router) {
 	r.HandleFunc("/user", PageUser)
 	//r.HandleFunc("/user/login", UserLogin).Methods("POST")
@@ -100,9 +105,11 @@ func PageAccount(w http.ResponseWriter, r *http.Request) {
 func PageUpdatePassword(w http.ResponseWriter, r *http.Request) {	
 	if IsAuthenticated(w,r) {
 		session, _ := store.Get(r, "cookie-name")
-		data := ReadUserAccount(session.Values["username"].(string))
+		username := session.Values["username"].(string)
 
-		if UpdateOwnPassword(data.Usergroup) {	
+		data := PagePasswordStruct{username, ""}
+
+		if UpdateOwnPassword(GetUsergroup(GetUserId(username))) {	
 			tmpl := template.Must(template.ParseFiles("template/user/password.html"))
 			tmpl.Execute(w, data)
 		} else {
@@ -135,31 +142,42 @@ func UserUpdatePassword(w http.ResponseWriter, r *http.Request) {
 
 			if PasswordIsValid(username, oldpassword) {
 				newpassword := r.FormValue("newpassword")
-				//confirmpassword := r.FormValue("confirmpassword")
+				confirmpassword := r.FormValue("confirmpassword")
 
-				// begin procedure of updating password
-				db, errOpen := sql.Open("sqlite3", "./database/core.db")
-				if errOpen != nil {
-					log.Fatal(errOpen)
+				if newpassword==confirmpassword {
+					id := GetUserId(username)
+
+					// begin procedure of updating password
+					db, errOpen := sql.Open("sqlite3", "./database/core.db")
+					if errOpen != nil {
+						log.Fatal(errOpen)
+					}
+					defer db.Close()
+
+					query := `UPDATE user SET password = ? WHERE id = ?`
+					_, err := db.Exec(query, newpassword, id)
+					if err != nil {
+						log.Fatal(err)
+					}
+					// success
+					http.ServeFile(w, r, "template/user/pwduptok.html")
+				} else {
+					data := PagePasswordStruct{username, "Error. Invalid password confirmation."}
+		
+					tmpl := template.Must(template.ParseFiles("template/user/password.html"))
+					tmpl.Execute(w, data)
 				}
-				defer db.Close()
-
-				//NOTE skip password confirmation, assume the new password is correct
-				
-				id := GetUserId(username)
-
-				query := `UPDATE user SET password = ? WHERE id = ?`
-				_, err := db.Exec(query, newpassword, id)
-				if err != nil {
-					log.Fatal(err)
-				}
-				// success
-				http.ServeFile(w, r, "template/user/pwduptok.html")
 			} else {
-				//
+				data := PagePasswordStruct{username, "Error. Old password is incorrect."}
+
+				tmpl := template.Must(template.ParseFiles("template/user/password.html"))
+				tmpl.Execute(w, data)
 			}
 		} else {
-			//
+			data := PagePasswordStruct{"", "Error. Username invalid. Please consider relogin."}
+
+			tmpl := template.Must(template.ParseFiles("template/user/password.html"))
+			tmpl.Execute(w, data)
 		}
 	} else {
 		http.Redirect(w, r, "/", 302)
@@ -236,6 +254,30 @@ func GetUserId(username string) string {
 	}
 
 	return strId
+}
+
+// function to get usergroup based on id
+func GetUsergroup(id string) string {
+	strUsergroup := ""
+
+	db, errOpen := sql.Open("sqlite3", "./database/core.db")
+	if errOpen != nil {
+		log.Fatal(errOpen)
+	}
+	defer db.Close()
+
+	query := `SELECT usergroup FROM user WHERE id = ?`
+	err := db.QueryRow(query, id).Scan(&strUsergroup)
+
+	if err == sql.ErrNoRows {
+		log.Fatal(err)
+		return ""
+	} else if err != nil {
+		log.Fatal(err)
+		return ""
+	}
+
+	return strUsergroup
 }
 
 // function to get basic user info from db based on username
