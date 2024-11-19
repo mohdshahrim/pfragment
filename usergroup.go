@@ -9,6 +9,10 @@ package main
 // OWN = self,
 // USER = other user
 
+type GroupPermission interface {
+	UserPermission() bool
+}
+
 // returns brief description about usergroup
 func UsergroupDefinition(usergroup string) string {
 	switch usergroup {
@@ -43,6 +47,22 @@ func UpdateOwnPassword(usergroup string) bool {
 
 // determines eligibility to update other user's password
 func UpdateUserPassword(usergroup string) bool {
+	switch usergroup {
+	case "guest":
+		return false
+	case "normal":
+		return false
+	case "admin":
+		return true
+	case "master":
+		return true
+	default:
+		return false
+	}
+}
+
+// determines eligibility to access admin pages
+func AccessAdmin(usergroup string) bool {
 	switch usergroup {
 	case "guest":
 		return false

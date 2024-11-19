@@ -127,6 +127,17 @@ func (p PageAccountStruct) UserPermission(permission string, usergroup string) b
 		return UpdateOwnPassword(usergroup)
 	case "update_user_password":
 		return UpdateUserPassword(usergroup)
+	case "access_admin":
+		return AccessAdmin(usergroup)
+	default:
+		return false
+	}
+}
+
+func (p PageUserStruct) UserPermission(permission string, username string) bool {
+	switch permission {
+	case "access_admin":
+		return AccessAdmin(GetUsergroup(GetUserId(username)))
 	default:
 		return false
 	}

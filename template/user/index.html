@@ -54,6 +54,9 @@
         <h4 style="text-align:center;">project fragment</h4>
         <div class="div-menu">
             <p><a href="/user">home</a></p>
+            {{if .UserPermission "access_admin" .Username}}
+                <p><a href="/admin">admin</a></p>
+            {{end}}
             <p><a href="/user/account">account</a></p>
             <p><a href="/about">about</a></p>
             <p><a href="/user/logout">logout</a></p>
