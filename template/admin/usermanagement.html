@@ -78,9 +78,24 @@
         <h2>User Management</h2>
         <p>list of users</p>
 
-        {{range .}}
-            <p>{{.Username}}</p>
-        {{end}}
+        <table>
+            <tr>
+                <td>id</td>
+                <td>username</td>
+                <td>email</td>
+                <td>password</td>
+                <td>usergroup</td>
+            </tr>
+            {{range .}}
+                <tr>
+                    <td>{{.Id}}</td>
+                    <td>{{.Username}}</td>
+                    <td>{{.Email}}</td>
+                    <td>****</td>
+                    <td>{{.Usergroup}}</td>
+                </tr>
+            {{end}}
+        </table>
     </div>
 </body>
 </html>
