@@ -61,6 +61,16 @@
            margin: 0;
            font-size: small;
         }
+
+        /* styling for simple table and general use */
+        .table-simple {
+            border: 0.5px solid lightgray;
+            border-collapse: collapse;
+        }
+        .table-simple td {
+            padding: 5px;
+            border: 0.5px solid lightgray;
+        }
     </style>
 </head>
 <body>
@@ -76,15 +86,16 @@
     </div>
     <div class="div-right">
         <h2>User Management</h2>
-        <p>list of users</p>
+        <p>to search, use the built-in browser text finder ( Ctrl +F )</p>
 
-        <table>
+        <table class="table-simple">
             <tr>
                 <td>id</td>
                 <td>username</td>
                 <td>email</td>
                 <td>password</td>
                 <td>usergroup</td>
+                <td>options</td>
             </tr>
             {{range .}}
                 <tr>
@@ -93,6 +104,10 @@
                     <td>{{.Email}}</td>
                     <td>****</td>
                     <td>{{.Usergroup}}</td>
+                    <td>
+                        <button>edit</button>
+                        <button>delete</button>
+                    </td>
                 </tr>
             {{end}}
         </table>
