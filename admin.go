@@ -2,9 +2,12 @@
 package main
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"html/template"
 	"github.com/gorilla/mux"
+	"database/sql"
 )
 
 type PageAdminStruct struct {
@@ -14,8 +17,17 @@ type PageAdminStruct struct {
 	Usergroup	string
 }
 
+type UserStruct struct {
+	Id			string
+	Username	string
+	Email		string
+	Password	string
+	Usergroup	string
+}
+
 func AdminHandler(r *mux.Router) {
 	r.HandleFunc("/admin", PageAdmin)
+	r.HandleFunc("/admin/usermanagement", PageAdminUserManagement)
 }
 
 func PageAdmin(w http.ResponseWriter, r *http.Request) {
@@ -35,6 +47,28 @@ func PageAdmin(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// "/admin/usermanagement"
+func PageAdminUserManagement(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		session, _ := store.Get(r, "cookie-name")
+		username := session.Values["username"].(string)
+		if AccessAdmin(GetUsergroup(GetUserId(username))) {
+			//
+			data := AllUser()
+			tmpl := template.Must(template.ParseFiles("template/admin/usermanagement.html"))
+			fmt.Println(data[0].Username)
+			tmpl.Execute(w, data)
+			//
+		} else {
+			// assuming user came from "/user"
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
+		// assuming user came from "/user"
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
 func (p PageAdminStruct) UserPermission(permission string, usergroup string) bool {
 	switch permission {
 	case "access_admin":
@@ -42,4 +76,33 @@ func (p PageAdminStruct) UserPermission(permission string, usergroup string) boo
 	default:
 		return false
 	}
+}
+
+func AllUser() []UserStruct {
+	db, errOpen := sql.Open("sqlite3", "./database/core.db")
+	if errOpen != nil {
+		log.Fatal("error opening core.db ", errOpen)
+	}
+	defer db.Close()
+
+    var userstruct []UserStruct
+    row, err := db.Query("SELECT * FROM user")
+	
+	if err == sql.ErrNoRows {
+		log.Fatal("func AllUser() no rows ", err)
+	} else if err != nil {
+		log.Fatal("func AllUser() return err nil ", err)
+	}
+
+    defer row.Close()
+    for row.Next() {
+        user := UserStruct{}
+        err := row.Scan(&user.Id, &user.Username, &user.Email, &user.Password, &user.Usergroup)
+        if err != nil {
+            log.Fatal(err)
+        }
+        userstruct = append(userstruct, user)
+    }
+
+    return userstruct
 }

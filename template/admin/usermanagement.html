@@ -68,34 +68,19 @@
         <h4 style="text-align:center;">project fragment</h4>
         <div class="div-menu">
             <p><a href="/user">home</a></p>
-            {{if .UserPermission "access_admin" .Usergroup}}
-                <p><a href="/admin">admin</a></p>
-            {{end}}
+
             <p><a href="/user/account">account</a></p>
             <p><a href="/about">about</a></p>
             <p><a href="/user/logout">logout</a></p>
         </div>
     </div>
     <div class="div-right">
-        <h2>Admin Panel</h2>
-        <p>for users and system management</p>
+        <h2>User Management</h2>
+        <p>list of users</p>
 
-        <div class="div-appcontainer">
-            <a class="div-app" href="/admin/usermanagement">
-                <div class="app-info">
-                    <b>User Management</b>
-                    <p class="app-info-p">user management</p>
-                </div>
-            </a>
-
-            <a class="div-app" href="/claimmaker">
-                <div class="app-info">
-                    <b>All Databases</b>
-                    <p class="app-info-p">view all sqlite databases</p>
-                </div>
-            </a>
-        </div>
-
+        {{range .}}
+            <p>{{.Username}}</p>
+        {{end}}
     </div>
 </body>
 </html>
