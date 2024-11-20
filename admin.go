@@ -53,12 +53,9 @@ func PageAdminUserManagement(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "cookie-name")
 		username := session.Values["username"].(string)
 		if AccessAdmin(GetUsergroup(GetUserId(username))) {
-			//
 			data := AllUser()
 			tmpl := template.Must(template.ParseFiles("template/admin/usermanagement.html"))
-			fmt.Println(data[0].Username)
 			tmpl.Execute(w, data)
-			//
 		} else {
 			// assuming user came from "/user"
 			http.Redirect(w, r, "/user", 302)
