@@ -43,9 +43,10 @@
             margin-right: 15px;
             margin-top: 15px;
             padding: 5px;
+            text-decoration: none;
         }
         .div-app:hover {
-            background-color: red;
+            background-color: #fde68a;
         }
     </style>
 </head>
@@ -63,9 +64,17 @@
         </div>
     </div>
     <div class="div-right">
-        <h2>Adminisration</h2>
-        <p>for matters involving users</p>
+        <h2>Admin Panel</h2>
+        <p>for users and system management</p>
 
+        <div class="div-appcontainer">
+            <a class="div-app" href="/admin/users">
+                <p style="margin:0px;">Users</p>
+            </a>
+            <a class="div-app" href="/admin/users">
+                <p style="margin:0px;">Apps Database</p>
+            </a>
+        </div>
 
     </div>
 </body>
