@@ -33,9 +33,11 @@
         .div-appcontainer {
             width: 100%;
             padding-top: 35px;
+            display: inline-flex;
         }
         .div-app {
-            display: inline-block;
+            color: black;
+            display: block;
             width: 120px;
             height: 120px;
             border-radius: 6px;
@@ -43,9 +45,21 @@
             margin-right: 15px;
             margin-top: 15px;
             padding: 5px;
+            text-decoration: none;
         }
         .div-app:hover {
-            background-color: red;
+            color: white;
+            background-color: #475569;
+        }
+        .app-info {
+            position: relative;
+            height: 100%;
+        }
+        .app-info-p {
+           position: absolute;
+           bottom: 0;
+           margin: 0;
+           font-size: small;
         }
     </style>
 </head>
@@ -69,15 +83,24 @@
         <!-- div to contain array of app shortcuts -->
         <div class="div-appcontainer">
             <a class="div-app" href="/claimmaker">
-                <p style="margin:0px;">Claimmaker</p>
+                <div class="app-info">
+                    <b>Claimmaker</b>
+                    <p class="app-info-p">fast & easy way to create claim form</p>
+                </div>
             </a>
 
             <a class="div-app" href="/claimmaker">
-                <p style="margin:0px;">Router Reset Record</p>
+                <div class="app-info">
+                    <b>Router Reset Record</b>
+                    <p class="app-info-p">keep record of router reset</p>
+                </div>
             </a>
 
             <a class="div-app" href="/claimmaker">
-                <p style="margin:0px;">Shutdown</p>
+                <div class="app-info">
+                    <b>Claimmaker</b>
+                    <p class="app-info-p">fast & easy way to create claim form</p>
+                </div>
             </a>
         </div>
 
