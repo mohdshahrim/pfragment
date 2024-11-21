@@ -172,10 +172,10 @@ func AdminNewUser(w http.ResponseWriter, r *http.Request) {
 		username := session.Values["username"].(string)
 		usergroup := GetUsergroup(GetUserId(username))
 		if AccessAdmin(usergroup) {
-			username := r.FormValue("username")
-			email := r.FormValue("email")
-			usergroup := r.FormValue("usergroup")
-			password := r.FormValue("password")
+			fusername := r.FormValue("username")
+			femail := r.FormValue("email")
+			fusergroup := r.FormValue("usergroup")
+			fpassword := r.FormValue("password")
 
 			db, errOpen := sql.Open("sqlite3", "./database/core.db")
 			if errOpen != nil {
@@ -183,7 +183,7 @@ func AdminNewUser(w http.ResponseWriter, r *http.Request) {
 			}
 			defer db.Close()
 
-			_, err := db.Exec(`INSERT INTO user (username, email, password, usergroup) VALUES (?, ?, ?, ?)`, username, email, password, usergroup)
+			_, err := db.Exec(`INSERT INTO user (username, email, password, usergroup) VALUES (?, ?, ?, ?)`, fusername, femail, fpassword, fusergroup)
 
 			if err != nil {
 				log.Println(err)
