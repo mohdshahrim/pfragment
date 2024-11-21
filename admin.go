@@ -14,6 +14,7 @@ type PageAdminStruct struct {
 	Username	string
 	Email		string
 	Usergroup	string
+	Users		[]UserStruct
 }
 
 type UserStruct struct {
@@ -27,6 +28,7 @@ type UserStruct struct {
 func AdminHandler(r *mux.Router) {
 	r.HandleFunc("/admin", PageAdmin)
 	r.HandleFunc("/admin/usermanagement", PageAdminUserManagement)
+	r.HandleFunc("/admin/usermanagement/newuser", PageAdminNewUser)
 }
 
 func PageAdmin(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +36,7 @@ func PageAdmin(w http.ResponseWriter, r *http.Request) {
 		session, _ := store.Get(r, "cookie-name")
 		username := session.Values["username"].(string)
 		if AccessAdmin(GetUsergroup(GetUserId(username))) {
-			data := ReadUserAccount(username) //NOTE: probably won't need all of the info
+			data := Admin(username)
 			tmpl := template.Must(template.ParseFiles("template/admin/index.html"))
 			tmpl.Execute(w, data)
 		} else {
@@ -51,8 +53,16 @@ func PageAdminUserManagement(w http.ResponseWriter, r *http.Request) {
 	if IsAuthenticated(w,r) {
 		session, _ := store.Get(r, "cookie-name")
 		username := session.Values["username"].(string)
-		if AccessAdmin(GetUsergroup(GetUserId(username))) {
-			data := AllUser()
+		usergroup := GetUsergroup(GetUserId(username))
+		if AccessAdmin(usergroup) {
+			//data := AllUser()
+			data := PageAdminStruct{
+				"",
+				username,
+				"",
+				usergroup,
+				AllUser(),
+			}
 			tmpl := template.Must(template.ParseFiles("template/admin/usermanagement.html"))
 			tmpl.Execute(w, data)
 		} else {
@@ -60,7 +70,24 @@ func PageAdminUserManagement(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/user", 302)
 		}
 	} else {
-		// assuming user came from "/user"
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+// "/admin/usermanagement/newuser"
+func PageAdminNewUser(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		session, _ := store.Get(r, "cookie-name")
+		username := session.Values["username"].(string)
+		usergroup := GetUsergroup(GetUserId(username))
+		if AccessAdmin(usergroup) {
+			data := Admin(username)
+			tmpl := template.Must(template.ParseFiles("template/admin/newuser.html"))
+			tmpl.Execute(w, data)
+		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
 		http.Redirect(w, r, "/", 302)
 	}
 }
@@ -69,9 +96,42 @@ func (p PageAdminStruct) UserPermission(permission string, usergroup string) boo
 	switch permission {
 	case "access_admin":
 		return AccessAdmin(usergroup)
+		//AccessAdmin(GetUsergroup(GetUserId(username)))
 	default:
 		return false
 	}
+}
+
+func Admin(username string) PageAdminStruct {
+
+
+	data := PageAdminStruct{
+		"",
+		username,
+		"",
+		"",
+		[]UserStruct{}, // empty reserved for UserStruct
+	}
+
+	// Connect to SQLite database
+	db, errOpen := sql.Open("sqlite3", "./database/core.db")
+	if errOpen != nil {
+		log.Fatal(errOpen)
+	}
+	defer db.Close()
+
+	query := `SELECT id, email, usergroup FROM user WHERE username = ?`
+	err := db.QueryRow(query, data.Username).Scan(&data.Id, &data.Email, &data.Usergroup)
+
+	if err == sql.ErrNoRows {
+		//fmt.Println("serious error")
+		//return false
+	} else if err != nil {
+		log.Fatal(err)
+		//return false
+	}
+
+	return data
 }
 
 func AllUser() []UserStruct {
