@@ -30,6 +30,7 @@ func AdminHandler(r *mux.Router) {
 	r.HandleFunc("/admin/usermanagement", PageAdminUserManagement)
 	r.HandleFunc("/admin/usermanagement/newuser", PageAdminNewUser)
 	r.HandleFunc("/admin/usermanagement/newuser/submit", AdminNewUser)
+	r.HandleFunc("/admin/usermanagement/deleteuser/{id}", AdminDeleteUser)
 }
 
 func PageAdmin(w http.ResponseWriter, r *http.Request) {
@@ -191,6 +192,38 @@ func AdminNewUser(w http.ResponseWriter, r *http.Request) {
 				data := Admin(username)
 				tmpl := template.Must(template.ParseFiles("template/admin/newuserok.html"))
 				tmpl.Execute(w, data)
+			}
+		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+// handle user deletion
+func AdminDeleteUser(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		session, _ := store.Get(r, "cookie-name")
+		username := session.Values["username"].(string)
+		usergroup := GetUsergroup(GetUserId(username))
+		if AccessAdmin(usergroup) {
+			vars := mux.Vars(r)
+			id := vars["id"]
+
+			db, errOpen := sql.Open("sqlite3", "./database/core.db")
+			if errOpen != nil {
+				log.Fatal(errOpen)
+			}
+			defer db.Close()
+
+			_, err := db.Exec(`DELETE FROM user WHERE id = ?`, id) // check err
+
+			if err != nil {
+				log.Println(err)
+			} else {
+				// finish
+				http.Redirect(w, r, "/admin/usermanagement", 302)
 			}
 		} else {
 			http.Redirect(w, r, "/user", 302)
