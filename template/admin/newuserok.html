@@ -91,59 +91,7 @@
     </div>
     <div class="div-right">
         <h2>User Management</h2>
-        <p>create new user</p>
-
-        <div class="spacer"></div>
-
-        <form method="post" action="/admin/usermanagement/newuser/submit">
-            <table>
-                <tr>
-                    <td>
-                        id
-                    </td>
-                    <td>
-                        <i>automatic</i>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        username
-                    </td>
-                    <td>
-                        <input type="text" name="username"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        email
-                    </td>
-                    <td>
-                        <input type="text" name="email"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        password
-                    </td>
-                    <td>
-                        <input type="password" name="password"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        usergroup
-                    </td>
-                    <td>
-                        <select name="usergroup">
-                            <option value="normal">normal</option>
-                            <option value="admin">admin</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-            <input type="hidden" name="authorizedadmin" value="{{.Username}}"/>
-            <p><button type="submit">submit</button></p>
-        </form>
+        <p>successfully created new user</p>
     </div>
 </body>
 </html>

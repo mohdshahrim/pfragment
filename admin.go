@@ -29,6 +29,7 @@ func AdminHandler(r *mux.Router) {
 	r.HandleFunc("/admin", PageAdmin)
 	r.HandleFunc("/admin/usermanagement", PageAdminUserManagement)
 	r.HandleFunc("/admin/usermanagement/newuser", PageAdminNewUser)
+	r.HandleFunc("/admin/usermanagement/newuser/submit", AdminNewUser)
 }
 
 func PageAdmin(w http.ResponseWriter, r *http.Request) {
@@ -161,4 +162,40 @@ func AllUser() []UserStruct {
     }
 
     return userstruct
+}
+
+// handle the form for new user submission
+func AdminNewUser(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		session, _ := store.Get(r, "cookie-name")
+		username := session.Values["username"].(string)
+		usergroup := GetUsergroup(GetUserId(username))
+		if AccessAdmin(usergroup) {
+			username := r.FormValue("username")
+			email := r.FormValue("email")
+			usergroup := r.FormValue("usergroup")
+			password := r.FormValue("password")
+
+			db, errOpen := sql.Open("sqlite3", "./database/core.db")
+			if errOpen != nil {
+				log.Fatal(errOpen)
+			}
+			defer db.Close()
+
+			_, err := db.Exec(`INSERT INTO user (username, email, password, usergroup) VALUES (?, ?, ?, ?)`, username, email, password, usergroup)
+
+			if err != nil {
+				log.Println(err)
+			} else {
+				// show success page
+				data := Admin(username)
+				tmpl := template.Must(template.ParseFiles("template/admin/newuserok.html"))
+				tmpl.Execute(w, data)
+			}
+		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
+		http.Redirect(w, r, "/", 302)
+	}
 }
