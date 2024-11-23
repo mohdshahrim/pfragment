@@ -99,12 +99,14 @@
                 </div>
             </a>
 
-            <a class="div-app" href="/claimmaker">
+            {{if .UserPermission "access_itdb" .Username}}
+            <a class="div-app" href="/itdb">
                 <div class="app-info">
-                    <b>Claimmaker</b>
-                    <p class="app-info-p">fast & easy way to create claim form</p>
+                    <b>itdb</b>
+                    <p class="app-info-p">IT inventory database & management</p>
                 </div>
             </a>
+            {{end}}
         </div>
 
     </div>

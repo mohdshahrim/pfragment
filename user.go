@@ -122,25 +122,19 @@ func PageUpdatePassword(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p PageAccountStruct) UserPermission(permission string, usergroup string) bool {
-	switch permission {
-	case "update_own_password":
-		return UpdateOwnPassword(usergroup)
-	case "update_user_password":
-		return UpdateUserPassword(usergroup)
-	case "access_admin":
-		return AccessAdmin(usergroup)
-	default:
-		return false
-	}
+	return UsergroupPermission(permission, usergroup)
 }
 
+// this particular functions, unlike most UserPermission function, take username as the second parameter
+// because its struct do not have usergroup defined. See PageUserStruct.
 func (p PageUserStruct) UserPermission(permission string, username string) bool {
-	switch permission {
-	case "access_admin":
-		return AccessAdmin(GetUsergroup(GetUserId(username)))
-	default:
-		return false
-	}
+	usergroup := GetUsergroup(GetUserId(username))
+	return UsergroupPermission(permission, usergroup)
+}
+
+func (p PagePasswordStruct) UserPermission(permission string, username string) bool {
+	usergroup := GetUsergroup(GetUserId(username))
+	return UsergroupPermission(permission, usergroup)
 }
 
 // performs password update procedure
@@ -171,7 +165,10 @@ func UserUpdatePassword(w http.ResponseWriter, r *http.Request) {
 						log.Fatal(err)
 					}
 					// success
-					http.ServeFile(w, r, "template/user/pwduptok.html")
+					data := PagePasswordStruct{username, "Password update success"}
+
+					tmpl := template.Must(template.ParseFiles("template/user/password.html"))
+					tmpl.Execute(w, data)
 				} else {
 					data := PagePasswordStruct{username, "Error. Invalid password confirmation."}
 		

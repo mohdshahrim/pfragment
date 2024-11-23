@@ -13,6 +13,19 @@ type GroupPermission interface {
 	UserPermission() bool
 }
 
+func UsergroupPermission(permission string, usergroup string) bool {
+	switch permission {
+	case "update_own_password":
+		return UpdateOwnPassword(usergroup)
+	case "update_user_password":
+		return UpdateUserPassword(usergroup)
+	case "access_admin":
+		return AccessAdmin(usergroup)
+	default:
+		return false
+	}
+}
+
 // returns brief description about usergroup
 func UsergroupDefinition(usergroup string) string {
 	switch usergroup {
@@ -51,18 +64,6 @@ func UpdateUserPassword(usergroup string) bool {
 
 // determines eligibility to access admin pages
 func AccessAdmin(usergroup string) bool {
-	switch usergroup {
-	case "normal":
-		return false
-	case "admin":
-		return true
-	default:
-		return false
-	}
-}
-
-// determines eligibility to access itdb
-func AccessITDB(usergroup string) bool {
 	switch usergroup {
 	case "normal":
 		return false

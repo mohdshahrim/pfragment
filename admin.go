@@ -95,13 +95,7 @@ func PageAdminNewUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p PageAdminStruct) UserPermission(permission string, usergroup string) bool {
-	switch permission {
-	case "access_admin":
-		return AccessAdmin(usergroup)
-		//AccessAdmin(GetUsergroup(GetUserId(username)))
-	default:
-		return false
-	}
+	return UsergroupPermission(permission, usergroup)
 }
 
 func Admin(username string) PageAdminStruct {

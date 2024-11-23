@@ -28,6 +28,7 @@ func main() {
 	UserHandler(r) // user.go
 	AboutHandler(r) // about.go
 	AdminHandler(r) // admin.go
+	//ITDBHandler(r) // itdb.go
 
 	// start the server
 	fmt.Println("Starting server...")
