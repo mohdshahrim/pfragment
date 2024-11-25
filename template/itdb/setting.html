@@ -59,56 +59,48 @@
             height: 100%;
         }
         .app-info-p {
-           position: absolute;
-           bottom: 0;
-           margin: 0;
-           font-size: small;
+            position: absolute;
+            bottom: 0;
+            margin: 0;
+            font-size: small;
+        }
+    </style>
+    <style>
+        .table-pclist {
+            font-size: small;
+            border-collapse: collapse;
+            /*border: 1px solid gray;*/
+        }
+        .table-pclist>tbody>tr>td{
+            padding: 0.5em 1em;
+            border: 1px solid gray;
         }
     </style>
 </head>
 <body>
     <div class="div-left">
-        <h4 style="text-align:center;">project fragment</h4>
+        <h4 style="margin-bottom:0px; text-align:center;">ITDB</h4>
+        <p style="margin-top:0px; font-size: small; text-align:center; color: gray;">part of project fragment</p>
         <div class="div-menu">
-            <p><a href="/user">home</a></p>
-            {{if .UserPermission "access_admin" .Username}}
-                <p><a href="/admin">admin</a></p>
-            {{end}}
-            <p><a href="/user/account">account</a></p>
-            <p><a href="/about">about</a></p>
+            <p><a href="/itdb">main</a></p>
+            <p><a href="/itdb/setting">setting</a></p>
+            <div class="spacer"></div>
+            <p><a href="/user">return to home</a></p>
             <p><a href="/user/logout">logout</a></p>
         </div>
     </div>
     <div class="div-right">
-        <h2>Welcome to Project Fragment</h2>
-        <p>you're logged as {{.Username}} on {{.LoggedOn}}</p>
-
-        <!-- div to contain array of app shortcuts -->
-        <div class="div-appcontainer">
-            <a class="div-app" href="/claimmaker">
-                <div class="app-info">
-                    <b>Claimmaker</b>
-                    <p class="app-info-p">fast & easy way to create claim form</p>
-                </div>
-            </a>
-
-            <a class="div-app" href="/claimmaker">
-                <div class="app-info">
-                    <b>Router Reset Record</b>
-                    <p class="app-info-p">keep record of router reset</p>
-                </div>
-            </a>
-
-            {{if .UserPermission "access_itdb" .Username}}
-            <a class="div-app" href="/itdb">
-                <div class="app-info">
-                    <b>ITDB</b>
-                    <p class="app-info-p">IT inventory database & management</p>
-                </div>
-            </a>
-            {{end}}
+        <div class="div-navigation">
+            <p>
+                <a href="/itdb">main</a>
+                >
+                <a href="/itdb/setting">setting</a>
+            </p>
         </div>
 
+        <h2>Setting</h2>
+
+        <div class="spacer"></div>
     </div>
 </body>
 </html>

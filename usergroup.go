@@ -21,6 +21,8 @@ func UsergroupPermission(permission string, usergroup string) bool {
 		return UpdateUserPassword(usergroup)
 	case "access_admin":
 		return AccessAdmin(usergroup)
+	case "access_itdb":
+		return AccessITDB(usergroup)
 	default:
 		return false
 	}
@@ -64,6 +66,18 @@ func UpdateUserPassword(usergroup string) bool {
 
 // determines eligibility to access admin pages
 func AccessAdmin(usergroup string) bool {
+	switch usergroup {
+	case "normal":
+		return false
+	case "admin":
+		return true
+	default:
+		return false
+	}
+}
+
+// determines the eligibility to access itdb system
+func AccessITDB(usergroup string) bool {
 	switch usergroup {
 	case "normal":
 		return false

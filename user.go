@@ -288,6 +288,14 @@ func GetUsergroup(id string) string {
 	return strUsergroup
 }
 
+// get username and usergroup from session
+func GetUserSession(r *http.Request) (string, string) {
+	session, _ := store.Get(r, "cookie-name")
+	username := session.Values["username"].(string)
+	usergroup := GetUsergroup(GetUserId(username))
+	return username, usergroup
+}
+
 // function to get basic user info from db based on username
 func ReadUserAccount(username string) PageAccountStruct {
 	data := PageAccountStruct{
@@ -302,7 +310,7 @@ func ReadUserAccount(username string) PageAccountStruct {
 	if errOpen != nil {
 		log.Fatal(errOpen)
 	}
-	//defer db.Close()
+	defer db.Close()
 
 	query := `SELECT id, email, usergroup FROM user WHERE username = ?`
 	err := db.QueryRow(query, data.Username).Scan(&data.Id, &data.Email, &data.Usergroup)

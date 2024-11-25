@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>project fragment</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        .spacer {
+            height: 50px;
+        }
+        .div-left {
+            top: 0;
+            padding-left: 5px;
+            padding-right: 5px;
+            display: block;
+            position: absolute;
+            width: 150px;
+            height: 100%;
+            border-right: 1px black solid;
+        }
+        .div-right {
+            top: 0;
+            margin-left: 200px;
+            margin-right: 50px;
+        }
+        .div-menu {
+            margin-top: 50px;
+            width: 100%;
+            padding-left: 5px;
+        }
+        .div-appcontainer {
+            width: 100%;
+            padding-top: 35px;
+            display: inline-flex;
+        }
+        .div-app {
+            color: black;
+            display: block;
+            width: 120px;
+            height: 120px;
+            border-radius: 6px;
+            border: 1px gray solid;
+            margin-right: 15px;
+            margin-top: 15px;
+            padding: 5px;
+            text-decoration: none;
+        }
+        .div-app:hover {
+            color: white;
+            background-color: #475569;
+        }
+        .app-info {
+            position: relative;
+            height: 100%;
+        }
+        .app-info-p {
+            position: absolute;
+            bottom: 0;
+            margin: 0;
+            font-size: small;
+        }
+    </style>
+    <style>
+        .table-pclist {
+            font-size: small;
+            border-collapse: collapse;
+            /*border: 1px solid gray;*/
+        }
+        .table-pclist>tbody>tr>td{
+            padding: 0.5em 1em;
+            border: 1px solid gray;
+        }
+    </style>
+</head>
+<body>
+    <div class="div-left">
+        <h4 style="margin-bottom:0px; text-align:center;">ITDB</h4>
+        <p style="margin-top:0px; font-size: small; text-align:center; color: gray;">part of project fragment</p>
+        <div class="div-menu">
+            <p><a href="/itdb">main</a></p>
+            <p><a href="/itdb/setting">setting</a></p>
+            <div class="spacer"></div>
+            <p><a href="/user">return to home</a></p>
+            <p><a href="/user/logout">logout</a></p>
+        </div>
+    </div>
+    <div class="div-right">
+        <div class="div-navigation">
+            <p>
+                <a href="/itdb">main</a>
+            </p>
+        </div>
+
+        <h2>IT Inventory Database (ITDB)</h2>
+        
+        <p>
+            Now showing:
+            <a href="/itdb">PC LIST SIBU (default)</a>
+        </p>
+        <p>
+            Other tables:
+            <a style="margin-right:2em;" href="/itdb">PC LIST KAPIT</a>
+            <a style="margin-right:2em;" href="/itdb">IT Inventory SIBU</a>
+            <a href="/itdb">IT Inventory KAPIT</a>
+        </p>
+
+        <div class="spacer"></div>
+
+        <p>
+            <button>add new</button>
+            <button>view PC layout</button>
+        </p>
+        <table class="table-pclist">
+            <tr>
+                <td style="border-top:none;border-left:none;"></td>
+                <td>NO</td>
+                <td>HOSTNAME</td>
+                <td>IP ADDRESS</td>
+                <td>CPU MODEL</td>
+                <td>CPU NO.</td>
+                <td>MONITOR MODEL</td>
+                <td>MONITOR NO.</td>
+                <td>PRINTER</td>
+                <td>USER</td>
+                <td>DEPARTMENT</td>
+                <td>NOTES</td>
+                <td>STATUS</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="">edit</a>
+                </td>
+                <td>1</td>
+                <td>SIBU17_IT</td>
+                <td>172.16.17.172</td>
+                <td>HP</td>
+                <td>SWA0001146</td>
+                <td>HP tm</td>
+                <td>M008008</td>
+                <td></td>
+                <td>M. Shahrim</td>
+                <td>IT Unit</td>
+                <td>the server</td>
+                <td>online</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="">edit</a>
+                </td>
+                <td>2</td>
+                <td>SIBU18_ROZNI</td>
+                <td>172.16.17.18</td>
+                <td>HP</td>
+                <td>SWA0002250</td>
+                <td>HP tm</td>
+                <td>M007702</td>
+                <td></td>
+                <td>Rozni Senhji</td>
+                <td>Account Dept.</td>
+                <td></td>
+                <td>offline</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="">edit</a>
+                </td>
+                <td>3</td>
+                <td>SIBU19_ZAHARAH</td>
+                <td>172.16.17.19</td>
+                <td>HP</td>
+                <td>SWA0002250</td>
+                <td>HP tm</td>
+                <td>M007702</td>
+                <td></td>
+                <td>Zaharah Ismail</td>
+                <td>Admin Dept.</td>
+                <td></td>
+                <td>offline</td>
+            </tr>
+        </table>
+
+    </div>
+</body>
+</html>
