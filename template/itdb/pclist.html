@@ -93,42 +93,87 @@
         <div class="div-navigation">
             <p>
                 <a href="/itdb">main</a>
+                >
+                <a href="/itdb/pc/sibu">pc sibu</a>
             </p>
         </div>
 
-        <h2>IT Inventory Database (ITDB)</h2>
-        <p>select a table to start</p>
+        <h2>PC Sibu List</h2>
 
-        <div class="div-appcontainer">
-            <a class="div-app" href="/itdb/pc/sibu">
-                <div class="app-info">
-                    <b>Sibu PC List</b>
-                    <p class="app-info-p">comprehensive list of PC for Sibu</p>
-                </div>
-            </a>
+        <div class="spacer"></div>
 
-            <a class="div-app" href="/itdb/pc/kapit">
-                <div class="app-info">
-                    <b>Kapit PC List</b>
-                    <p class="app-info-p">comprehensive list of PC for Kapit Sub-Regional Office</p>
-                </div>
-            </a>
-
-            <a class="div-app" href="/itdb/user">
-                <div class="app-info">
-                    <b>User list</b>
-                    <p class="app-info-p">list of users assignable to PC</p>
-                </div>
-            </a>
-
-            <a class="div-app" href="/itdb/printer">
-                <div class="app-info">
-                    <b>Printer list</b>
-                    <p class="app-info-p">list of users assignable to PC</p>
-                </div>
-            </a>
-
-        </div>
+        <p>
+            <a href="/itdb/pc/sibu/add"><button>add new</button></a>
+            <button>view PC layout</button>
+        </p>
+        <table class="table-pclist">
+            <tr>
+                <td style="border-top:none;border-left:none;"></td>
+                <td>NO</td>
+                <td>HOSTNAME</td>
+                <td>IP ADDRESS</td>
+                <td>CPU MODEL</td>
+                <td>CPU NO.</td>
+                <td>MONITOR MODEL</td>
+                <td>MONITOR NO.</td>
+                <td>PRINTER</td>
+                <td>USER</td>
+                <td>DEPARTMENT</td>
+                <td>NOTES</td>
+                <td>STATUS</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="">edit</a>
+                </td>
+                <td>1</td>
+                <td>SIBU17_IT</td>
+                <td>172.16.17.172</td>
+                <td>HP</td>
+                <td>SWA0001146</td>
+                <td>HP tm</td>
+                <td>M008008</td>
+                <td></td>
+                <td>M. Shahrim</td>
+                <td>IT Unit</td>
+                <td>the server</td>
+                <td>online</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="">edit</a>
+                </td>
+                <td>2</td>
+                <td>SIBU18_ROZNI</td>
+                <td>172.16.17.18</td>
+                <td>HP</td>
+                <td>SWA0002250</td>
+                <td>HP tm</td>
+                <td>M007702</td>
+                <td></td>
+                <td>Rozni Senhji</td>
+                <td>Account Dept.</td>
+                <td></td>
+                <td>offline</td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="">edit</a>
+                </td>
+                <td>3</td>
+                <td>SIBU19_ZAHARAH</td>
+                <td>172.16.17.19</td>
+                <td>HP</td>
+                <td>SWA0002250</td>
+                <td>HP tm</td>
+                <td>M007702</td>
+                <td></td>
+                <td>Zaharah Ismail</td>
+                <td>Admin Dept.</td>
+                <td></td>
+                <td>offline</td>
+            </tr>
+        </table>
 
     </div>
 </body>

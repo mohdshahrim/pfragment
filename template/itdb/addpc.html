@@ -93,43 +93,59 @@
         <div class="div-navigation">
             <p>
                 <a href="/itdb">main</a>
+                >
+                <a href="/itdb/pc/sibu/add">add pc</a>
             </p>
         </div>
 
-        <h2>IT Inventory Database (ITDB)</h2>
-        <p>select a table to start</p>
+        <h2>Add PC ({{.Region}})</h2>
 
-        <div class="div-appcontainer">
-            <a class="div-app" href="/itdb/pc/sibu">
-                <div class="app-info">
-                    <b>Sibu PC List</b>
-                    <p class="app-info-p">comprehensive list of PC for Sibu</p>
-                </div>
-            </a>
+        <div class="spacer"></div>
 
-            <a class="div-app" href="/itdb/pc/kapit">
-                <div class="app-info">
-                    <b>Kapit PC List</b>
-                    <p class="app-info-p">comprehensive list of PC for Kapit Sub-Regional Office</p>
-                </div>
-            </a>
+        <form action="/itdb/pc/sibu/add/submit" method="post">
+        <input type="hidden"/>
+        <table>
+            <!-- hostname -->
+            <tr>
+                <td>Hostname</td>
+                <td>
+                    <input name="hostname" type="text"/>
+                </td>
+            </tr>
 
-            <a class="div-app" href="/itdb/user">
-                <div class="app-info">
-                    <b>User list</b>
-                    <p class="app-info-p">list of users assignable to PC</p>
-                </div>
-            </a>
+            <!-- ip address -->
+            <tr>
+                <td>IP address</td>
+                <td>
+                    <input name="ip" type="text"/>
+                </td>
+            </tr>
 
-            <a class="div-app" href="/itdb/printer">
-                <div class="app-info">
-                    <b>Printer list</b>
-                    <p class="app-info-p">list of users assignable to PC</p>
-                </div>
-            </a>
+            <!-- CPU model -->
+            <tr>
+                <td>CPU model</td>
+                <td>
+                    <input name="cpumodel" type="text"/>
+                </td>
+            </tr>
 
-        </div>
+            <!-- CPU no -->
+            <tr>
+                <td>CPU no</td>
+                <td>
+                    <input name="cpuno" type="text"/>
+                </td>
+            </tr>
 
+            <!-- monitor model -->
+            <tr>
+                <td>Monitor model</td>
+                <td>
+                    <input name="ip" type="text"/>
+                </td>
+            </tr>
+        </table>
+        </form>
     </div>
 </body>
 </html>
