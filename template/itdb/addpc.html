@@ -110,7 +110,7 @@
                 <td>Office</td>
                 <td>
                     {{.Office}}
-                    <input name="Office" value="{{.Office}}" type="hidden"/>
+                    <input name="office" value="{{.Office}}" type="hidden"/>
                 </td>
             </tr>
 
@@ -167,7 +167,7 @@
                 <td>Printer</td>
                 <td>
                     <details>
-                        <summary>select the printers</summary>
+                        <summary>select hosted printer(s)</summary>
                         <p>
                             {{range .Printers}}
                                 <input name="printer" type="checkbox" id="{{.Nickname}}" value="{{.Rowid}}" />
@@ -202,6 +202,8 @@
                 </td>
             </tr>
         </table>
+
+        <button type="submit">Submit</button>
         </form>
     </div>
 </body>
