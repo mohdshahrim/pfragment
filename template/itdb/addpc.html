@@ -94,17 +94,26 @@
             <p>
                 <a href="/itdb">main</a>
                 >
-                <a href="/itdb/pc/sibu/add">add pc</a>
+                <a href="/itdb/pc/{{.Office}}">pc {{.Office}}</a>
+                >
+                <a href="/itdb/pc/{{.Office}}/add">add new</a>
             </p>
         </div>
 
-        <h2>Add PC ({{.Region}})</h2>
+        <h2>Add new PC</h2>
 
         <div class="spacer"></div>
 
-        <form action="/itdb/pc/sibu/add/submit" method="post">
-        <input type="hidden"/>
+        <form action="/itdb/pc/{{.Office}}/add/submit" method="post">
         <table>
+            <tr>
+                <td>Office</td>
+                <td>
+                    {{.Office}}
+                    <input name="Office" value="{{.Office}}" type="hidden"/>
+                </td>
+            </tr>
+
             <!-- hostname -->
             <tr>
                 <td>Hostname</td>
@@ -125,7 +134,7 @@
             <tr>
                 <td>CPU model</td>
                 <td>
-                    <input name="cpumodel" type="text"/>
+                    <input name="cpu_model" type="text"/>
                 </td>
             </tr>
 
@@ -133,7 +142,7 @@
             <tr>
                 <td>CPU no</td>
                 <td>
-                    <input name="cpuno" type="text"/>
+                    <input name="cpu_no" type="text"/>
                 </td>
             </tr>
 
@@ -141,7 +150,55 @@
             <tr>
                 <td>Monitor model</td>
                 <td>
-                    <input name="ip" type="text"/>
+                    <input name="monitor_model" type="text"/>
+                </td>
+            </tr>
+
+            <!-- monitor no -->
+            <tr>
+                <td>Monitor no</td>
+                <td>
+                    <input name="monitor_no" type="text"/>
+                </td>
+            </tr>
+
+            <!-- printer -->
+            <tr>
+                <td>Printer</td>
+                <td>
+                    <details>
+                        <summary>select the printers</summary>
+                        <p>
+                            {{range .Printers}}
+                                <input name="printer" type="checkbox" id="{{.Nickname}}" value="{{.Rowid}}" />
+                                <label for="{{.Nickname}}">{{.Rowid}} {{.Printermodel}} ({{.Nickname}})</label>
+                            {{end}}
+                        </p>
+                    </details>
+                </td>
+            </tr>
+
+            <!-- user -->
+            <tr>
+                <td>User</td>
+                <td>
+                    <input name="user" type="text"/>
+                </td>
+            </tr>
+
+            <!-- department -->
+            <tr>
+                <td>Department</td>
+                <td>
+                    <input name="department" type="text"/>
+                </td>
+            </tr>
+
+            <!-- notes -->
+            <tr>
+                <td>Notes</td>
+                <td>
+                    <textarea name="notes"></textarea>
                 </td>
             </tr>
         </table>

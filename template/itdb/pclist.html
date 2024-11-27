@@ -94,16 +94,16 @@
             <p>
                 <a href="/itdb">main</a>
                 >
-                <a href="/itdb/pc/sibu">pc sibu</a>
+                <a href="/itdb/pc/{{.Office}}">pc {{.Office}}</a>
             </p>
         </div>
 
-        <h2>PC Sibu List</h2>
+        <h2>PC {{.Office}} List</h2>
 
         <div class="spacer"></div>
 
         <p>
-            <a href="/itdb/pc/sibu/add"><button>add new</button></a>
+            <a href="/itdb/pc/{{.Office}}/add"><button>add new</button></a>
             <button>view PC layout</button>
         </p>
         <table class="table-pclist">
