@@ -36,6 +36,7 @@ type PageITDBStruct struct {
 }
 
 type PC struct {
+	Office			string
 	Id				int
 	Hostname		string
 	Ip				string
@@ -122,7 +123,7 @@ func PageITDBPC(w http.ResponseWriter, r *http.Request) {
 				Office: office,
 				PCs: GetPC(office),
 			}
-			fmt.Println(data)
+			fmt.Println(office)
 			tmpl := template.Must(template.ParseFiles("template/itdb/pclist.html"))
 			tmpl.Execute(w, data)
 		} else {
@@ -254,6 +255,7 @@ func GetPC(office string) []PC {
         }
 
 		// reassigns ns to pc
+		pc.Office = office
 		pc.Hostname = ns.Hostname.String
 		pc.Ip = ns.Ip.String
 		pc.Cpumodel = ns.Cpumodel.String
@@ -333,8 +335,4 @@ func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 	} else{
 		http.Redirect(w, r, "/", 302)
 	}
-}
-
-func PCStructTest() string {
-	return ""
 }

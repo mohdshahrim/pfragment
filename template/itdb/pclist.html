@@ -125,7 +125,7 @@
             {{range .PCs}}
                 <tr>
                     <td>
-                        <a href="/itdb/pc">edit</a>
+                        <a href="/itdb/pc/{{.Office}}/edit/{{.Id}}">edit</a>
                     </td>
                     <td>1</td>
                     <td>{{.Hostname}}</td>
@@ -134,7 +134,7 @@
                     <td>{{.Cpuno}}</td>
                     <td>{{.Monitormodel}}</td>
                     <td>{{.Monitorno}}</td>
-                    <td></td>
+                    <td>a</td>
                     <td>{{.User}}</td>
                     <td>{{.Department}}</td>
                     <td>{{.Notes}}</td>
