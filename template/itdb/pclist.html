@@ -127,7 +127,7 @@
                     <td>
                         <a href="/itdb/pc/{{.Office}}/edit/{{.Id}}">edit</a>
                     </td>
-                    <td>{{$index}}</td>
+                    <td>{{.IndexOffset $index}}</td>
                     <td>{{.Hostname}}</td>
                     <td>{{.Ip}}</td>
                     <td>{{.Cpumodel}}</td>

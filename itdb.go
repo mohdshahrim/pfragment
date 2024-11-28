@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"net/http"
 	"html/template"
 	"github.com/gorilla/mux"
@@ -246,6 +247,12 @@ func GetPC(office string) []PC {
     }
 
     return pcstruct
+}
+
+// function to offset index at range so that it begins at 1
+func (p PC) IndexOffset(index int) string {
+	index = index + 1
+	return strconv.Itoa(index)
 }
 
 // function to handle add new PC
