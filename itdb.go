@@ -13,6 +13,8 @@ import (
 const (
 	pcsibu = "pcsibu1"
 	pckapit = "pckapit1"
+	printersibu = "printersibu1"
+	printerkapit = "printerkapit1"
 )
 
 // since we cannot modify existing struct, we can embed a struct into another struct
@@ -27,6 +29,11 @@ type PageITDBAddPC struct {
 type PCList struct {
 	Office	string
 	PCs	[]PC
+}
+
+type PrinterList struct {
+	Office string
+	Printers []Printer
 }
 
 type PageITDBStruct struct {
@@ -52,6 +59,7 @@ type PC struct {
 }
 
 type Printer struct {
+	Office			string
 	Rowid			int
 	Printermodel	string
 	Printerno		string
@@ -67,6 +75,7 @@ func ITDBHandler(r *mux.Router) {
 	r.HandleFunc("/itdb/pc/{office}", PageITDBPC)
 	r.HandleFunc("/itdb/pc/{office}/add", PageITDBPCAdd)
 	r.HandleFunc("/itdb/pc/{office}/add/submit", ITDBPCAddSubmit)
+	r.HandleFunc("/itdb/printer/{office}", PageITDBPrinter)
 }
 
 func (p PageITDBStruct) UserPermission(permission string, username string) bool {
@@ -124,7 +133,7 @@ func PageITDBPC(w http.ResponseWriter, r *http.Request) {
 				Office: office,
 				PCs: GetPC(office),
 			}
-			fmt.Println(office)
+
 			tmpl := template.Must(template.ParseFiles("template/itdb/pclist.html"))
 			tmpl.Execute(w, data)
 		} else {
@@ -160,6 +169,27 @@ func PageITDBPCAdd(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/user", 302)
 		}
 	} else {
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+// /itdb/printer/{office}
+func PageITDBPrinter(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		_, usergroup := GetUserSession(r)
+		if AccessITDB(usergroup) {
+			office := mux.Vars(r)["office"]
+			data := PrinterList {
+				Office: office,
+				Printers: GetPrinter(office),
+			}
+
+			tmpl := template.Must(template.ParseFiles("template/itdb/printerlist.html"))
+			tmpl.Execute(w, data)
+		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else{
 		http.Redirect(w, r, "/", 302)
 	}
 }
@@ -249,8 +279,58 @@ func GetPC(office string) []PC {
     return pcstruct
 }
 
+// function to get all printers as per office
+func GetPrinter(office string) []Printer {
+	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+	if errOpen != nil {
+		log.Fatal("error opening itdb.db ", errOpen)
+	}
+	defer db.Close()
+
+    var printerstruct []Printer
+
+	query := ""
+
+	switch(office) {
+	case "sibu":
+		query = "SELECT rowid, * FROM " + printersibu 
+	case "kapit":
+		query = "SELECT rowid, * FROM " + printerkapit
+	}
+
+    row, err := db.Query(query)
+	
+	if err == sql.ErrNoRows {
+		// if it indeed has no rows, it means the table is still new
+		//log.Fatal("func GetPrinter() no rows ", err)
+		return printerstruct
+	} else if err != nil {
+		log.Fatal("func GetPrinter() return error :", err)
+	}
+
+    defer row.Close()
+    for row.Next() {
+        printer := Printer{}
+        err := row.Scan(&printer.Rowid, &printer.Printermodel, &printer.Printerno, &printer.Printertype, &printer.Notes, &printer.Host, &printer.Nickname)
+        if err != nil {
+            log.Fatal(err)
+        }
+
+		printer.Office = office //assigns at each row, because when inside range, global ".Office" is not recognized
+
+        printerstruct = append(printerstruct, printer)
+    }
+
+    return printerstruct
+}
+
 // function to offset index at range so that it begins at 1
 func (p PC) IndexOffset(index int) string {
+	index = index + 1
+	return strconv.Itoa(index)
+}
+
+func (p Printer) IndexOffset(index int) string {
 	index = index + 1
 	return strconv.Itoa(index)
 }

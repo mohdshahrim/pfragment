@@ -93,42 +93,44 @@
         <div class="div-navigation">
             <p>
                 <a href="/itdb">main</a>
+                >
+                <a href="/itdb/printer/{{.Office}}">{{.Office}} printer</a>
             </p>
         </div>
 
-        <h2>IT Inventory Database (ITDB)</h2>
-        <p>select a table to start</p>
+        <h2>Printer {{.Office}} List</h2>
 
-        <div class="div-appcontainer">
-            <a class="div-app" href="/itdb/pc/sibu">
-                <div class="app-info">
-                    <b>Sibu PC List</b>
-                    <p class="app-info-p">comprehensive list of PC for Sibu</p>
-                </div>
-            </a>
+        <div class="spacer"></div>
 
-            <a class="div-app" href="/itdb/pc/kapit">
-                <div class="app-info">
-                    <b>Kapit PC List</b>
-                    <p class="app-info-p">comprehensive list of PC for Kapit Sub-Regional Office</p>
-                </div>
-            </a>
-
-            <a class="div-app" href="/itdb/printer/sibu">
-                <div class="app-info">
-                    <b>Sibu Printer</b>
-                    <p class="app-info-p">list of Sibu printers</p>
-                </div>
-            </a>
-
-            <a class="div-app" href="/itdb/printer/kapit">
-                <div class="app-info">
-                    <b>Kapit Printer</b>
-                    <p class="app-info-p">list of Kapit printers</p>
-                </div>
-            </a>
-
-        </div>
+        <p>
+            <a href="/itdb/printer/{{.Office}}/add"><button>add new</button></a>
+        </p>
+        <table class="table-pclist">
+            <tr>
+                <td style="border-top:none;border-left:none;"></td>
+                <td>NO</td>
+                <td>MODEL</td>
+                <td>PRINTER NO</td>
+                <td>PRINTER TYPE</td>
+                <td>NOTES</td>
+                <td>HOST</td>
+                <td>NICKNAME</td>
+            </tr>
+            {{range $index, $element:=.Printers}}
+                <tr>
+                    <td>
+                        <a href="/itdb/printer/{{.Office}}/edit/{{.Rowid}}">edit</a>
+                    </td>
+                    <td>{{.IndexOffset $index}}</td>
+                    <td>{{.Printermodel}}</td>
+                    <td>{{.Printerno}}</td>
+                    <td>{{.Printertype}}</td>
+                    <td>{{.Notes}}</td>
+                    <td>{{.Host}}</td>
+                    <td>{{.Nickname}}</td>
+                </tr>
+            {{end}}
+        </table>
 
     </div>
 </body>
