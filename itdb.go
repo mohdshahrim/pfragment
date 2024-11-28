@@ -23,6 +23,11 @@ type PageITDBAddPC struct {
 	Printers	[]Printer
 }
 
+type PCList struct {
+	Office	string
+	PCs	[]PC
+}
+
 type PageITDBStruct struct {
 	Id			string
 	Username	string
@@ -110,20 +115,14 @@ func PageITDBSetting(w http.ResponseWriter, r *http.Request) {
 // "/itdb/pc/{office}"
 func PageITDBPC(w http.ResponseWriter, r *http.Request) {
 	if IsAuthenticated(w,r) {
-		username, usergroup := GetUserSession(r)
+		_, usergroup := GetUserSession(r)
 		if AccessITDB(usergroup) {
 			office := mux.Vars(r)["office"]
-			userbasic := PageITDBStruct {
-				"",
-				username,
-				"",
-				usergroup,
-			}
-			data := PageITDBAddPC {
+			data := PCList {
 				Office: office,
-				PageITDBStruct: userbasic,
+				PCs: GetPC(office),
 			}
-
+			fmt.Println(data)
 			tmpl := template.Must(template.ParseFiles("template/itdb/pclist.html"))
 			tmpl.Execute(w, data)
 		} else {
@@ -203,6 +202,77 @@ func GetPrinterNoHost(office string) []Printer {
     return printerstruct
 }
 
+// function to get all PCs as per office
+func GetPC(office string) []PC {
+	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+	if errOpen != nil {
+		log.Fatal("error opening itdb.db ", errOpen)
+	}
+	defer db.Close()
+
+    var pcstruct []PC
+
+	query := ""
+
+	switch(office) {
+	case "sibu":
+		query = "SELECT * FROM " + pcsibu 
+	case "kapit":
+		query = "SELECT * FROM " + pckapit
+	}
+
+    row, err := db.Query(query)
+	
+	if err == sql.ErrNoRows {
+		// if it indeed has no rows, it means the table is still new
+		//log.Fatal("func GetPC() no rows ", err)
+		return pcstruct
+	} else if err != nil {
+		log.Fatal("func GetPC() return error :", err)
+	}
+
+    defer row.Close()
+    for row.Next() {
+        pc := PC{}
+		ns := struct {
+			Hostname		sql.NullString
+			Ip				sql.NullString
+			Cpumodel		sql.NullString
+			Cpuno			sql.NullString
+			Monitormodel	sql.NullString
+			Monitorno		sql.NullString
+			Printer			sql.NullString
+			User			sql.NullString
+			Department		sql.NullString
+			Notes			sql.NullString
+		} {
+
+		}
+        err := row.Scan(&pc.Id, &ns.Hostname, &ns.Ip, &ns.Cpumodel, &ns.Cpuno, &ns.Monitormodel, &ns.Monitorno, &ns.Printer, &ns.User, &ns.Department, &ns.Notes)
+        if err != nil {
+            log.Fatal(err)
+        }
+
+		// reassigns ns to pc
+		pc.Hostname = ns.Hostname.String
+		pc.Ip = ns.Ip.String
+		pc.Cpumodel = ns.Cpumodel.String
+		pc.Cpuno = ns.Cpuno.String
+		pc.Monitormodel = ns.Monitormodel.String
+		pc.Monitorno = ns.Monitorno.String
+		pc.Printer = ns.Printer.String
+		pc.User = ns.User.String
+		pc.Department = ns.Department.String
+		pc.Notes = ns.Notes.String
+
+		//fmt.Println(pc)//TEST
+
+        pcstruct = append(pcstruct, pc)
+    }
+
+    return pcstruct
+}
+
 // function to handle add new PC
 func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 	if IsAuthenticated(w,r) {
@@ -226,7 +296,7 @@ func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 				printer = r.FormValue("printer")
 			}
 
-			fmt.Println("printer is ",printer, " office is ",office)//TEST
+			fmt.Println("printer is ", printer , " office is ", office)//TEST
 
 			db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
 			if errOpen != nil {
@@ -263,4 +333,8 @@ func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 	} else{
 		http.Redirect(w, r, "/", 302)
 	}
+}
+
+func PCStructTest() string {
+	return ""
 }
