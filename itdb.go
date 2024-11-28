@@ -235,39 +235,12 @@ func GetPC(office string) []PC {
     defer row.Close()
     for row.Next() {
         pc := PC{}
-		ns := struct {
-			Hostname		sql.NullString
-			Ip				sql.NullString
-			Cpumodel		sql.NullString
-			Cpuno			sql.NullString
-			Monitormodel	sql.NullString
-			Monitorno		sql.NullString
-			Printer			sql.NullString
-			User			sql.NullString
-			Department		sql.NullString
-			Notes			sql.NullString
-		} {
-
-		}
-        err := row.Scan(&pc.Id, &ns.Hostname, &ns.Ip, &ns.Cpumodel, &ns.Cpuno, &ns.Monitormodel, &ns.Monitorno, &ns.Printer, &ns.User, &ns.Department, &ns.Notes)
+        err := row.Scan(&pc.Id, &pc.Hostname, &pc.Ip, &pc.Cpumodel, &pc.Cpuno, &pc.Monitormodel, &pc.Monitorno, &pc.Printer, &pc.User, &pc.Department, &pc.Notes)
         if err != nil {
             log.Fatal(err)
         }
 
-		// reassigns ns to pc
-		pc.Office = office
-		pc.Hostname = ns.Hostname.String
-		pc.Ip = ns.Ip.String
-		pc.Cpumodel = ns.Cpumodel.String
-		pc.Cpuno = ns.Cpuno.String
-		pc.Monitormodel = ns.Monitormodel.String
-		pc.Monitorno = ns.Monitorno.String
-		pc.Printer = ns.Printer.String
-		pc.User = ns.User.String
-		pc.Department = ns.Department.String
-		pc.Notes = ns.Notes.String
-
-		//fmt.Println(pc)//TEST
+		pc.Office = office //assigns at each row, because when inside range, global ".Office" is not recognized
 
         pcstruct = append(pcstruct, pc)
     }
