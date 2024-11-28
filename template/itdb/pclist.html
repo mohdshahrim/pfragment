@@ -122,12 +122,12 @@
                 <td>NOTES</td>
                 <td>STATUS</td>
             </tr>
-            {{range .PCs}}
+            {{range $index, $element:=.PCs}}
                 <tr>
                     <td>
                         <a href="/itdb/pc/{{.Office}}/edit/{{.Id}}">edit</a>
                     </td>
-                    <td>1</td>
+                    <td>{{$index}}</td>
                     <td>{{.Hostname}}</td>
                     <td>{{.Ip}}</td>
                     <td>{{.Cpumodel}}</td>
