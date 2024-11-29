@@ -76,6 +76,8 @@ func ITDBHandler(r *mux.Router) {
 	r.HandleFunc("/itdb/pc/{office}/add", PageITDBPCAdd)
 	r.HandleFunc("/itdb/pc/{office}/add/submit", ITDBPCAddSubmit)
 	r.HandleFunc("/itdb/printer/{office}", PageITDBPrinter)
+	r.HandleFunc("/itdb/printer/{office}/add", PageITDBPrinterAdd)
+	r.HandleFunc("/itdb/printer/{office}/add/submit", ITDBPrinterAddSubmit)
 }
 
 func (p PageITDBStruct) UserPermission(permission string, username string) bool {
@@ -190,6 +192,38 @@ func PageITDBPrinter(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/user", 302)
 		}
 	} else{
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+// "/itdb/printer/{office}/add"
+func PageITDBPrinterAdd(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		username, usergroup := GetUserSession(r)
+		if AccessITDB(usergroup) {
+			office := mux.Vars(r)["office"]
+
+			userbasic := PageITDBStruct {
+				"",
+				username,
+				"",
+				usergroup,
+			}
+
+			data := struct {
+				Office string
+				PageITDBStruct PageITDBStruct
+			}{
+				office,
+				userbasic,
+			}
+
+			tmpl := template.Must(template.ParseFiles("template/itdb/addprinter.html"))
+			tmpl.Execute(w, data)
+		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
 		http.Redirect(w, r, "/", 302)
 	}
 }
@@ -388,6 +422,51 @@ func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 				}
 				tmpl := template.Must(template.ParseFiles("template/itdb/index.html"))
 				tmpl.Execute(w, data)
+			}
+		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else{
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+// function to handle add new printer
+func ITDBPrinterAddSubmit(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		_, usergroup := GetUserSession(r)
+		if AccessITDB(usergroup) {
+			r.ParseForm()
+
+			office := r.FormValue("office")
+			printermodel := r.FormValue("printermodel")
+			printerno := r.FormValue("printerno")
+			printertype := r.FormValue("printertype")
+			notes := r.FormValue("notes")
+			nickname := r.FormValue("nickname")
+
+			db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+			if errOpen != nil {
+				log.Fatal(errOpen)
+			}
+			defer db.Close()
+
+			// decides which table
+			printertable := ""
+			switch(office) {
+			case "sibu":
+				printertable = printersibu
+			case "kapit":
+				printertable = printerkapit
+			}
+
+			_, err := db.Exec(`INSERT INTO ` + printertable + ` (printermodel, printerno, printertype, notes, nickname) VALUES (?, ?, ?, ?, ?)`, printermodel, printerno, printertype, notes, nickname)
+
+			if err != nil {
+				log.Println(err)
+			} else {
+				//success
+				http.Redirect(w, r, "/itdb/printer/" + office + "", 302)
 			}
 		} else {
 			http.Redirect(w, r, "/user", 302)
