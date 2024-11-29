@@ -126,7 +126,7 @@
                     <td>{{.Printerno}}</td>
                     <td>{{.Printertype}}</td>
                     <td>{{.Notes.String}}</td>
-                    <td>{{.Host.Int64}}</td>
+                    <td>{{.PrinterHostname .Host.Int64 .Office}}</td>
                     <td>{{.Nickname}}</td>
                 </tr>
             {{end}}

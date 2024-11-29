@@ -94,7 +94,7 @@
             <p>
                 <a href="/itdb">main</a>
                 >
-                <a href="/itdb/pc/{{.Office}}">pc {{.Office}}</a>
+                <a href="/itdb/pc/{{.Office}}">{{.Office}} pc</a>
                 >
                 <a href="/itdb/pc/{{.Office}}/add">add new</a>
             </p>
@@ -171,7 +171,7 @@
                         <p>
                             {{range .Printers}}
                                 <input name="printer" type="checkbox" id="{{.Nickname}}" value="{{.Rowid}}" />
-                                <label for="{{.Nickname}}">{{.Rowid}} {{.Printermodel}} ({{.Nickname}})</label>
+                                <label for="{{.Nickname}}">{{.Printermodel}} ({{.Nickname}})</label>
                             {{end}}
                         </p>
                     </details>

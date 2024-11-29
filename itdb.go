@@ -369,6 +369,47 @@ func (p Printer) IndexOffset(index int) string {
 	return strconv.Itoa(index)
 }
 
+// function to get hostname for related printer
+func (p Printer) PrinterHostname(id int64, office string) string {
+	if id == 0 {
+		return "n/a"
+	} else {
+		return GetHostname(int(id),office)
+	}
+}
+
+func GetHostname(id int, office string) string {
+	hostname := ""
+
+	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+	if errOpen != nil {
+		log.Fatal(errOpen)
+	}
+	defer db.Close()
+
+	pctable := ""
+	switch(office) {
+	case "sibu":
+		pctable = pcsibu 
+	case "kapit":
+		pctable = pckapit
+	}
+
+
+	query := `SELECT hostname FROM ` + pctable + ` WHERE id = ?`
+	err := db.QueryRow(query, id).Scan(&hostname)
+
+	if err == sql.ErrNoRows {
+		log.Fatal(err)
+		return ""
+	} else if err != nil {
+		log.Fatal(err)
+		return ""
+	}
+
+	return hostname
+}
+
 // function to handle add new PC
 func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 	if IsAuthenticated(w,r) {
