@@ -134,7 +134,7 @@
             <tr>
                 <td>CPU model</td>
                 <td>
-                    <input name="cpu_model" type="text"/>
+                    <input name="cpu_model" type="text" value="{{.PC.Cpumodel}}"/>
                 </td>
             </tr>
 
@@ -142,7 +142,7 @@
             <tr>
                 <td>CPU no</td>
                 <td>
-                    <input name="cpu_no" type="text"/>
+                    <input name="cpu_no" type="text" value="{{.PC.Cpuno}}"/>
                 </td>
             </tr>
 
@@ -150,7 +150,7 @@
             <tr>
                 <td>Monitor model</td>
                 <td>
-                    <input name="monitor_model" type="text"/>
+                    <input name="monitor_model" type="text" value="{{.PC.Monitormodel}}"/>
                 </td>
             </tr>
 
@@ -158,7 +158,7 @@
             <tr>
                 <td>Monitor no</td>
                 <td>
-                    <input name="monitor_no" type="text"/>
+                    <input name="monitor_no" type="text" value="{{.PC.Monitorno}}"/>
                 </td>
             </tr>
 
@@ -182,7 +182,7 @@
             <tr>
                 <td>User</td>
                 <td>
-                    <input name="user" type="text"/>
+                    <input name="user" type="text" value="{{.PC.User}}"/>
                 </td>
             </tr>
 
@@ -190,7 +190,7 @@
             <tr>
                 <td>Department</td>
                 <td>
-                    <input name="department" type="text"/>
+                    <input name="department" type="text" value="{{.PC.Department}}"/>
                 </td>
             </tr>
 
@@ -198,7 +198,7 @@
             <tr>
                 <td>Notes</td>
                 <td>
-                    <textarea name="notes"></textarea>
+                    <textarea name="notes">{{.PC.Notes}}</textarea>
                 </td>
             </tr>
         </table>
