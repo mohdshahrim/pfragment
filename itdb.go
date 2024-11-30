@@ -79,6 +79,7 @@ func ITDBHandler(r *mux.Router) {
 	r.HandleFunc("/itdb/printer/{office}", PageITDBPrinter)
 	r.HandleFunc("/itdb/printer/{office}/add", PageITDBPrinterAdd)
 	r.HandleFunc("/itdb/printer/{office}/add/submit", ITDBPrinterAddSubmit)
+	r.HandleFunc("/itdb/printer/{office}/edit/{rowid}", PageITDBPrinterEdit)
 }
 
 func (p PageITDBStruct) UserPermission(permission string, username string) bool {
@@ -267,6 +268,46 @@ func PageITDBPrinterAdd(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// /itdb/printer/{office}/edit/{rowid}
+func PageITDBPrinterEdit(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		username, usergroup := GetUserSession(r)
+		if AccessITDB(usergroup) {
+			office := mux.Vars(r)["office"]
+			rowid := mux.Vars(r)["rowid"] // because pc tables use id instead of rowid
+			rowidInt,_ := strconv.Atoi(rowid)
+
+			userbasic := PageITDBStruct {
+				"",
+				username,
+				"",
+				usergroup,
+			}
+
+			data := struct{
+				Office string
+				PageITDBStruct PageITDBStruct
+				Printer	Printer
+			}{
+				office,
+				userbasic,
+				GetPrinterByRowid(office, rowidInt),
+			}
+
+			tmpl := template.Must(template.ParseFiles("template/itdb/editprinter.html"))
+			tmpl.Execute(w, data)
+		} else{
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+// Functions that handles process and procedures and does not involve returning HTML page
+//
+//
+
 // function to return all printers that has no host
 func GetPrinterNoHost(office string) []Printer {
 	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
@@ -354,7 +395,6 @@ func GetPC(office string) []PC {
 
 // function to get PC by its row id (not rowid)
 func GetPCById(office string, id int) PC {
-	//TODO
 	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
 	if errOpen != nil {
 		log.Fatal("error opening itdb.db ", errOpen)
@@ -383,6 +423,39 @@ func GetPCById(office string, id int) PC {
 	pcstruct.Office = office //most likely is needed
 
     return pcstruct
+}
+
+// function to get printer by its rowid
+func GetPrinterByRowid(office string, rowid int) Printer {
+	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+	if errOpen != nil {
+		log.Fatal("error opening itdb.db ", errOpen)
+	}
+	defer db.Close()
+
+	query := ""
+
+	switch(office) {
+	case "sibu":
+		query = "SELECT rowid, * FROM " + printersibu + " WHERE rowid=?"
+	case "kapit":
+		query = "SELECT rowid, * FROM " + printerkapit + " WHERE rowid=?"
+	}
+
+	printerstruct := Printer{}
+
+	err := db.QueryRow(query, rowid).Scan(&printerstruct.Rowid, &printerstruct.Printermodel, &printerstruct.Printerno, &printerstruct.Printertype, &printerstruct.Notes, &printerstruct.Host, &printerstruct.Nickname)
+
+	if err == sql.ErrNoRows {
+		fmt.Println("oh no, no rows! ", err, " query is ", query)
+		log.Fatal(err)
+	} else if err != nil {
+		log.Fatal(err)
+	}
+
+	printerstruct.Office = office //most likely is needed
+
+    return printerstruct
 }
 
 // function to get all printers as per office
