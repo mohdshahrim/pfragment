@@ -96,7 +96,7 @@
                 >
                 <a href="/itdb/printer/{{.Office}}">{{.Office}} printer</a>
                 >
-                <a href="/itdb/printer/{{.Office}}/add">add new</a>
+                <a href="/itdb/printer/{{.Office}}/edit/{{.Printer.Rowid}}">edit</a>
             </p>
         </div>
 
@@ -118,7 +118,7 @@
             <tr>
                 <td>Printer model</td>
                 <td>
-                    <input name="printermodel" type="text" value=".Printer.Printermodel"/>
+                    <input name="printermodel" type="text" value="{{.Printer.Printermodel}}"/>
                 </td>
             </tr>
 
