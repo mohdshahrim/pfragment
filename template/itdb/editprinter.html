@@ -126,7 +126,7 @@
             <tr>
                 <td>Printer no.</td>
                 <td>
-                    <input name="printerno" type="text"/>
+                    <input name="printerno" type="text" value="{{.Printer.Printerno}}"/>
                 </td>
             </tr>
 
@@ -134,7 +134,7 @@
             <tr>
                 <td>Printer type</td>
                 <td>
-                    <input name="printertype" type="text"/>
+                    <input name="printertype" type="text" value="{{.Printer.Printertype}}"/>
                 </td>
             </tr>
 
@@ -142,7 +142,7 @@
             <tr>
                 <td>Notes</td>
                 <td>
-                    <textarea name="notes"></textarea>
+                    <textarea name="notes">{{.Printer.Notes.Value}}</textarea>
                 </td>
             </tr>
 
@@ -150,7 +150,7 @@
             <tr>
                 <td>Nickname</td>
                 <td>
-                    <input name="nickname" type="text"/>
+                    <input name="nickname" type="text" value="{{.Printer.Nickname}}"/>
                 </td>
             </tr>
         </table>
