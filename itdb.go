@@ -75,6 +75,7 @@ func ITDBHandler(r *mux.Router) {
 	r.HandleFunc("/itdb/pc/{office}", PageITDBPC)
 	r.HandleFunc("/itdb/pc/{office}/add", PageITDBPCAdd)
 	r.HandleFunc("/itdb/pc/{office}/add/submit", ITDBPCAddSubmit)
+	r.HandleFunc("/itdb/pc/{office}/edit/{id}", PageITDBPCEdit) // PC Edit
 	r.HandleFunc("/itdb/printer/{office}", PageITDBPrinter)
 	r.HandleFunc("/itdb/printer/{office}/add", PageITDBPrinterAdd)
 	r.HandleFunc("/itdb/printer/{office}/add/submit", ITDBPrinterAddSubmit)
@@ -166,8 +167,46 @@ func PageITDBPCAdd(w http.ResponseWriter, r *http.Request) {
 			}
 
 			tmpl := template.Must(template.ParseFiles("template/itdb/addpc.html"))
-			tmpl.Execute(w, data)			
+			tmpl.Execute(w, data)		
 		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+// "/itdb/pc/{office}/edit/{id}"
+func PageITDBPCEdit(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		username, usergroup := GetUserSession(r)
+		if AccessITDB(usergroup) {
+			office := mux.Vars(r)["office"]
+			id := mux.Vars(r)["id"] // because pc tables use id instead of rowid
+			idInt,_ := strconv.Atoi(id)
+
+			userbasic := PageITDBStruct {
+				"",
+				username,
+				"",
+				usergroup,
+			}
+
+			data := struct{
+				Office string
+				PageITDBStruct PageITDBStruct
+				PC	PC
+				Printers []Printer
+			}{
+				office,
+				userbasic,
+				GetPCById(office, idInt),
+				GetPrinterNoHost(office),
+			}
+
+			tmpl := template.Must(template.ParseFiles("template/itdb/editpc.html"))
+			tmpl.Execute(w, data)
+		} else{
 			http.Redirect(w, r, "/user", 302)
 		}
 	} else {
@@ -309,6 +348,39 @@ func GetPC(office string) []PC {
 
         pcstruct = append(pcstruct, pc)
     }
+
+    return pcstruct
+}
+
+// function to get PC by its row id (not rowid)
+func GetPCById(office string, id int) PC {
+	//TODO
+	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+	if errOpen != nil {
+		log.Fatal("error opening itdb.db ", errOpen)
+	}
+	defer db.Close()
+
+	query := ""
+
+	switch(office) {
+	case "sibu":
+		query = "SELECT * FROM " + pcsibu + " WHERE id=?"
+	case "kapit":
+		query = "SELECT * FROM " + pckapit + " WHERE id=?"
+	}
+
+	pcstruct := PC{}
+
+	err := db.QueryRow(query, id).Scan(&pcstruct.Id, &pcstruct.Hostname, &pcstruct.Ip, &pcstruct.Cpumodel, &pcstruct.Cpuno, &pcstruct.Monitormodel, &pcstruct.Monitorno, &pcstruct.Printer, &pcstruct.User, &pcstruct.Department, &pcstruct.Notes)
+
+	if err == sql.ErrNoRows {
+		log.Fatal(err)
+	} else if err != nil {
+		log.Fatal(err)
+	}
+
+	pcstruct.Office = office //most likely is needed
 
     return pcstruct
 }
