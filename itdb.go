@@ -701,7 +701,7 @@ func ITDBPCEditSubmit(w http.ResponseWriter, r *http.Request) {
 				log.Fatal(err)
 			}
 			
-			http.Redirect(w, r, "/itdb/pc/" + office, 302)
+			http.Redirect(w, r, "/itdb/pc/" + office + "/view/" + id, 302)
 			//
 		} else {
 			http.Redirect(w, r, "/user", 302)
