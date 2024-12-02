@@ -80,6 +80,7 @@ func ITDBHandler(r *mux.Router) {
 	r.HandleFunc("/itdb/printer/{office}/add", PageITDBPrinterAdd)
 	r.HandleFunc("/itdb/printer/{office}/add/submit", ITDBPrinterAddSubmit)
 	r.HandleFunc("/itdb/printer/{office}/edit/{rowid}", PageITDBPrinterEdit)
+	r.HandleFunc("/itdb/printer/{office}/edit/{rowid}/submit", ITDBPrinterEditSubmit)
 }
 
 func (p PageITDBStruct) UserPermission(permission string, username string) bool {
@@ -658,6 +659,50 @@ func ITDBPrinterAddSubmit(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/user", 302)
 		}
 	} else{
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+func ITDBPrinterEditSubmit(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		_, usergroup := GetUserSession(r)
+		if AccessITDB(usergroup) {
+			rowid := r.FormValue("rowid")
+			office := r.FormValue("office")
+			printermodel := r.FormValue("printermodel")
+			printerno := r.FormValue("printerno")
+			printertype := r.FormValue("printertype")
+			notes := r.FormValue("notes")
+			nickname := r.FormValue("nickname")
+
+
+			// begin procedure of updating password
+			db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+			if errOpen != nil {
+				log.Fatal(errOpen)
+			}
+			defer db.Close()
+
+			// decides which table
+			printertable := ""
+			switch(office) {
+			case "sibu":
+				printertable = printersibu
+			case "kapit":
+				printertable = printerkapit
+			}
+
+			query := `UPDATE ` + printertable + ` SET printermodel=?, printerno=?, printertype=?, notes=?, nickname=? WHERE rowid = ?`
+			_, err := db.Exec(query, printermodel, printerno, printertype, notes, nickname, rowid)
+			if err != nil {
+				log.Fatal(err)
+			}
+			
+			http.Redirect(w, r, "/itdb/printer/" + office, 302)
+		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
 		http.Redirect(w, r, "/", 302)
 	}
 }
