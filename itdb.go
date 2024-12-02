@@ -76,6 +76,7 @@ func ITDBHandler(r *mux.Router) {
 	r.HandleFunc("/itdb/pc/{office}/add", PageITDBPCAdd)
 	r.HandleFunc("/itdb/pc/{office}/add/submit", ITDBPCAddSubmit)
 	r.HandleFunc("/itdb/pc/{office}/edit/{id}", PageITDBPCEdit) // PC Edit
+	r.HandleFunc("/itdb/pc/{office}/edit/{id}/submit", ITDBPCEditSubmit)
 	r.HandleFunc("/itdb/printer/{office}", PageITDBPrinter)
 	r.HandleFunc("/itdb/printer/{office}/add", PageITDBPrinterAdd)
 	r.HandleFunc("/itdb/printer/{office}/add/submit", ITDBPrinterAddSubmit)
@@ -614,6 +615,59 @@ func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/user", 302)
 		}
 	} else{
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+func ITDBPCEditSubmit(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		_, usergroup := GetUserSession(r)
+		if AccessITDB(usergroup) {
+			//
+			id := r.FormValue("id")
+			office := r.FormValue("office")
+			hostname := r.FormValue("hostname")
+			ip := r.FormValue("ip")
+			cpu_model := r.FormValue("cpu_model")
+			cpu_no := r.FormValue("cpu_no")
+			monitor_model := r.FormValue("monitor_model")
+			monitor_no := r.FormValue("monitor_no")
+			user := r.FormValue("user")
+			department := r.FormValue("department")
+			notes := r.FormValue("notes")
+			// have to check because sometimes there are no printer to be set
+			printer := "" //default
+			if r.PostForm.Has("printer") {
+				printer = r.FormValue("printer")
+			}
+
+			db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+			if errOpen != nil {
+				log.Fatal(errOpen)
+			}
+			defer db.Close()
+
+			// decides which table
+			pctable := ""
+			switch(office) {
+			case "sibu":
+				pctable = pcsibu
+			case "kapit":
+				pctable = pckapit
+			}
+
+			query := `UPDATE ` + pctable + ` SET hostname=?, ip=?, cpu_model=?, cpu_no=?, monitor_model=?, monitor_no=?, printer=?, user=?, department=?, notes=? WHERE id = ?`
+			_, err := db.Exec(query, hostname, ip, cpu_model, cpu_no, monitor_model, monitor_no, printer, user, department, notes, id)
+			if err != nil {
+				log.Fatal(err)
+			}
+			
+			http.Redirect(w, r, "/itdb/pc/" + office, 302)
+			//
+		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
 		http.Redirect(w, r, "/", 302)
 	}
 }
