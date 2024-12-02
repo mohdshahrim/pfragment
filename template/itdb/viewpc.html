@@ -95,56 +95,104 @@
                 <a href="/itdb">main</a>
                 >
                 <a href="/itdb/pc/{{.Office}}">{{.Office}} pc</a>
+                >
+                <a href="/itdb/pc/{{.Office}}/view/{{.PC.Id}}">view pc</a>
             </p>
         </div>
 
-        <h2>{{.Office}} PC List</h2>
+        <h2>View PC</h2>
+        <p>click <a href="/itdb/pc/{{.Office}}/edit/{{.PC.Id}}">here</a> to edit</p>
 
         <div class="spacer"></div>
 
-        <p>
-            <a href="/itdb/pc/{{.Office}}/add"><button>add new</button></a>
-            <button>view PC layout</button>
-        </p>
-        <table class="table-pclist">
+        <table>
             <tr>
-                <td style="border-top:none;border-left:none;"></td>
-                <td>NO</td>
-                <td>HOSTNAME</td>
-                <td>IP ADDRESS</td>
-                <td>CPU MODEL</td>
-                <td>CPU NO.</td>
-                <td>MONITOR MODEL</td>
-                <td>MONITOR NO.</td>
-                <td>PRINTER</td>
-                <td>USER</td>
-                <td>DEPARTMENT</td>
-                <td>NOTES</td>
-                <td>STATUS</td>
+                <td>Office</td>
+                <td>
+                    {{.Office}}
+                </td>
             </tr>
-            {{range $index, $element:=.PCs}}
-                <tr>
-                    <td>
-                        <a href="/itdb/pc/{{.Office}}/edit/{{.Id}}">edit</a>
-                        &nbsp;
-                        <a href="/itdb/pc/{{.Office}}/view/{{.Id}}">view</a>
-                    </td>
-                    <td>{{.IndexOffset $index}}</td>
-                    <td>{{.Hostname}}</td>
-                    <td>{{.Ip}}</td>
-                    <td>{{.Cpumodel}}</td>
-                    <td>{{.Cpuno}}</td>
-                    <td>{{.Monitormodel}}</td>
-                    <td>{{.Monitorno}}</td>
-                    <td>a</td>
-                    <td>{{.User}}</td>
-                    <td>{{.Department}}</td>
-                    <td>{{.Notes}}</td>
-                    <td>online</td>
-                </tr>
-            {{end}}
-        </table>
 
+            <!-- hostname -->
+            <tr>
+                <td>Hostname</td>
+                <td>
+                    {{.PC.Hostname}}
+                </td>
+            </tr>
+
+            <!-- ip address -->
+            <tr>
+                <td>IP address</td>
+                <td>
+                    {{.PC.Ip}}
+                </td>
+            </tr>
+
+            <!-- CPU model -->
+            <tr>
+                <td>CPU model</td>
+                <td>
+                    {{.PC.Cpumodel}}
+                </td>
+            </tr>
+
+            <!-- CPU no -->
+            <tr>
+                <td>CPU no</td>
+                <td>
+                    {{.PC.Cpuno}}
+                </td>
+            </tr>
+
+            <!-- monitor model -->
+            <tr>
+                <td>Monitor model</td>
+                <td>
+                    {{.PC.Monitormodel}}
+                </td>
+            </tr>
+
+            <!-- monitor no -->
+            <tr>
+                <td>Monitor no</td>
+                <td>
+                    {{.PC.Monitorno}}
+                </td>
+            </tr>
+
+            <!-- printer -->
+            <tr>
+                <td>Printer</td>
+                <td>
+
+                </td>
+            </tr>
+
+            <!-- user -->
+            <tr>
+                <td>User</td>
+                <td>
+                    {{.PC.User}}
+                </td>
+            </tr>
+
+            <!-- department -->
+            <tr>
+                <td>Department</td>
+                <td>
+                    {{.PC.Department}}
+                </td>
+            </tr>
+
+            <!-- notes -->
+            <tr>
+                <td>Notes</td>
+                <td>
+                    {{.PC.Notes}}
+                </td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>

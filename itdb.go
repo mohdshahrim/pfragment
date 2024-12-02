@@ -77,6 +77,7 @@ func ITDBHandler(r *mux.Router) {
 	r.HandleFunc("/itdb/pc/{office}/add/submit", ITDBPCAddSubmit)
 	r.HandleFunc("/itdb/pc/{office}/edit/{id}", PageITDBPCEdit) // PC Edit
 	r.HandleFunc("/itdb/pc/{office}/edit/{id}/submit", ITDBPCEditSubmit)
+	r.HandleFunc("/itdb/pc/{office}/view/{id}", PageITDBPCView)
 	r.HandleFunc("/itdb/printer/{office}", PageITDBPrinter)
 	r.HandleFunc("/itdb/printer/{office}/add", PageITDBPrinterAdd)
 	r.HandleFunc("/itdb/printer/{office}/add/submit", ITDBPrinterAddSubmit)
@@ -210,6 +211,44 @@ func PageITDBPCEdit(w http.ResponseWriter, r *http.Request) {
 			tmpl := template.Must(template.ParseFiles("template/itdb/editpc.html"))
 			tmpl.Execute(w, data)
 		} else{
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+// page just to display PC in tabular form for easier view
+func PageITDBPCView(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		username, usergroup := GetUserSession(r)
+		if AccessITDB(usergroup) {
+			office := mux.Vars(r)["office"]
+			id := mux.Vars(r)["id"] // because pc tables use id instead of rowid
+			idInt,_ := strconv.Atoi(id)
+
+			userbasic := PageITDBStruct {
+				"",
+				username,
+				"",
+				usergroup,
+			}
+
+			data := struct{
+				Office string
+				PageITDBStruct PageITDBStruct
+				PC	PC
+				Printers []Printer
+			}{
+				office,
+				userbasic,
+				GetPCById(office, idInt),
+				GetPrinterNoHost(office),
+			}
+
+			tmpl := template.Must(template.ParseFiles("template/itdb/viewpc.html"))
+			tmpl.Execute(w, data)
+		} else {
 			http.Redirect(w, r, "/user", 302)
 		}
 	} else {
