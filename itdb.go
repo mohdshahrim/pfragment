@@ -5,6 +5,7 @@ import (
 	"log"
 	"strconv"
 	"net/http"
+	"strings"
 	"html/template"
 	"github.com/gorilla/mux"
 	"database/sql"
@@ -548,6 +549,32 @@ func GetPrinter(office string) []Printer {
 func (p PC) IndexOffset(index int) string {
 	index = index + 1
 	return strconv.Itoa(index)
+}
+
+// function to display printer rowid as printer name
+// printerno format "1 2" (number separated by spaces)
+func (p PC) PrinterName(office string, printerno string) string {
+	if len(printerno) == 0 {
+		return ""
+	}
+
+	printerRowids := strings.Split(printerno, " ")
+
+	// An uninitialized slice equals to nil and has length 0.
+	if len(printerRowids) == 0 {
+		return ""
+	}
+
+	// loop
+	finalString := ""
+	for i:=0; i<len(printerRowids); i++ {
+		printer := Printer{}
+		rowid, _ := strconv.Atoi(printerRowids[i])
+		printer = GetPrinterByRowid(office, rowid)
+		finalString +=  printer.Printermodel + "(" + printer.Nickname + ") "
+	}
+
+	return finalString
 }
 
 func (p Printer) IndexOffset(index int) string {
