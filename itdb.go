@@ -489,7 +489,6 @@ func GetPrinterByRowid(office string, rowid int) Printer {
 	err := db.QueryRow(query, rowid).Scan(&printerstruct.Rowid, &printerstruct.Printermodel, &printerstruct.Printerno, &printerstruct.Printertype, &printerstruct.Notes, &printerstruct.Host, &printerstruct.Nickname)
 
 	if err == sql.ErrNoRows {
-		fmt.Println("oh no, no rows! ", err, " query is ", query)
 		log.Fatal(err)
 	} else if err != nil {
 		log.Fatal(err)
@@ -554,8 +553,6 @@ func (p PC) IndexOffset(index int) string {
 // function to display printer rowid as printer name
 // printerno format "1 2" (number separated by spaces)
 func (p PC) PrinterName(office string, printerno string) string {
-	fmt.Println("printerno ", printerno)
-
 	if len(printerno) == 0 {
 		return ""
 	}
@@ -647,8 +644,6 @@ func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 			if r.PostForm.Has("printer") {
 				printer = r.FormValue("printer")
 			}
-
-			fmt.Println("printer is ", printer , " office is ", office)//TEST
 
 			db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
 			if errOpen != nil {
