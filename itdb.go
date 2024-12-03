@@ -554,6 +554,8 @@ func (p PC) IndexOffset(index int) string {
 // function to display printer rowid as printer name
 // printerno format "1 2" (number separated by spaces)
 func (p PC) PrinterName(office string, printerno string) string {
+	fmt.Println("printerno ", printerno)
+
 	if len(printerno) == 0 {
 		return ""
 	}
@@ -571,7 +573,7 @@ func (p PC) PrinterName(office string, printerno string) string {
 		printer := Printer{}
 		rowid, _ := strconv.Atoi(printerRowids[i])
 		printer = GetPrinterByRowid(office, rowid)
-		finalString +=  printer.Printermodel + "(" + printer.Nickname + ") "
+		finalString += printer.Printermodel + " (" + printer.Nickname + ") "
 	}
 
 	return finalString
@@ -689,6 +691,7 @@ func ITDBPCEditSubmit(w http.ResponseWriter, r *http.Request) {
 	if IsAuthenticated(w,r) {
 		_, usergroup := GetUserSession(r)
 		if AccessITDB(usergroup) {
+			r.ParseForm()
 			//
 			id := r.FormValue("id")
 			office := r.FormValue("office")
@@ -704,7 +707,14 @@ func ITDBPCEditSubmit(w http.ResponseWriter, r *http.Request) {
 			// have to check because sometimes there are no printer to be set
 			printer := "" //default
 			if r.PostForm.Has("printer") {
-				printer = r.FormValue("printer")
+				//fmt.Println("len ", len(r.Form["printer"])," ", r.Form["printer"][0], " ", r.Form["printer"][1])
+				// format for storing printers in table is "{printerno}{whitespace}{printerno}"
+				for i:=0; i<len(r.Form["printer"]); i++ {
+					printer += r.Form["printer"][i]
+					if i+1!=len(r.Form["printer"]) {
+						printer += " "
+					}
+				}
 			}
 
 			db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
