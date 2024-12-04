@@ -170,12 +170,12 @@
                 <td>
                     <details>
                         <summary>select hosted printer(s)</summary>
-                        <p>
                             {{range .Printers}}
-                                <input name="printer" type="checkbox" id="{{.Nickname}}" value="{{.Rowid}}" />
+                            <p>
+                                <input name="printer" type="checkbox" id="{{.Nickname}}" value="{{.Rowid}}" {{.PrinterChecked .Office .Rowid}}/>
                                 <label for="{{.Nickname}}">{{.Printermodel}} ({{.Nickname}})</label>
+                            </p>
                             {{end}}
-                        </p>
                     </details>
                 </td>
             </tr>

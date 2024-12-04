@@ -206,7 +206,7 @@ func PageITDBPCEdit(w http.ResponseWriter, r *http.Request) {
 				office,
 				userbasic,
 				GetPCById(office, idInt),
-				GetPrinterNoHost(office),
+				GetPrinter(office),
 			}
 
 			tmpl := template.Must(template.ParseFiles("template/itdb/editpc.html"))
@@ -372,7 +372,7 @@ func GetPrinterNoHost(office string) []Printer {
     row, err := db.Query(query)
 	
 	if err == sql.ErrNoRows {
-		log.Fatal("func GetPrinterNoHost() no rows ", err)
+		log.Fatal("GetPrinterNoHost() no rows ", err)
 	} else if err != nil {
 		log.Fatal("func GetPrinterNoHost() return err nil ", err)
 	}
@@ -380,6 +380,7 @@ func GetPrinterNoHost(office string) []Printer {
     defer row.Close()
     for row.Next() {
         printer := Printer{}
+		printer.Office = office
         err := row.Scan(&printer.Rowid, &printer.Printermodel, &printer.Printerno, &printer.Printertype, &printer.Notes, &printer.Host, &printer.Nickname)
         if err != nil {
             log.Fatal(err)
@@ -413,7 +414,7 @@ func GetPC(office string) []PC {
 	
 	if err == sql.ErrNoRows {
 		// if it indeed has no rows, it means the table is still new
-		//log.Fatal("func GetPC() no rows ", err)
+		log.Fatal("GetPC() ", err)
 		return pcstruct
 	} else if err != nil {
 		log.Fatal("func GetPC() return error :", err)
@@ -457,7 +458,7 @@ func GetPCById(office string, id int) PC {
 	err := db.QueryRow(query, id).Scan(&pcstruct.Id, &pcstruct.Hostname, &pcstruct.Ip, &pcstruct.Cpumodel, &pcstruct.Cpuno, &pcstruct.Monitormodel, &pcstruct.Monitorno, &pcstruct.Printer, &pcstruct.User, &pcstruct.Department, &pcstruct.Notes)
 
 	if err == sql.ErrNoRows {
-		log.Fatal(err)
+		log.Fatal("GetPCById ", err)
 	} else if err != nil {
 		log.Fatal(err)
 	}
@@ -489,7 +490,7 @@ func GetPrinterByRowid(office string, rowid int) Printer {
 	err := db.QueryRow(query, rowid).Scan(&printerstruct.Rowid, &printerstruct.Printermodel, &printerstruct.Printerno, &printerstruct.Printertype, &printerstruct.Notes, &printerstruct.Host, &printerstruct.Nickname)
 
 	if err == sql.ErrNoRows {
-		log.Fatal(err)
+		log.Fatal("GetPrinterByRowid ", err)
 	} else if err != nil {
 		log.Fatal(err)
 	}
@@ -522,7 +523,7 @@ func GetPrinter(office string) []Printer {
 	
 	if err == sql.ErrNoRows {
 		// if it indeed has no rows, it means the table is still new
-		//log.Fatal("func GetPrinter() no rows ", err)
+		log.Fatal("GetPrinter() ", err)
 		return printerstruct
 	} else if err != nil {
 		log.Fatal("func GetPrinter() return error :", err)
@@ -590,6 +591,41 @@ func (p Printer) PrinterHostname(id int64, office string) string {
 	}
 }
 
+// function to determine whether the printer is already hosted, and will return "checked" or ""
+func (p Printer) PrinterChecked(office string, rowid int) string {
+	checkedStr := ""
+
+	printertable := ""
+	switch(office) {
+	case "sibu":
+		printertable = printersibu
+	case "kapit":
+		printertable = printerkapit
+	}
+
+	db, err := sql.Open("sqlite3", "./database/itdb.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var hostStr sql.NullString
+	query := `SELECT host FROM ` + printertable + ` WHERE rowid=?`
+	err = db.QueryRow(query, rowid).Scan(&hostStr)
+
+	if hostStr.Valid {
+		fmt.Println("hostStr ",hostStr.String)
+		checkedStr = "checked"
+	} else {
+		checkedStr = ""
+	}
+
+	//TEST
+	fmt.Println("len(office)=", len(office), " checkedStr=", checkedStr)
+
+	return checkedStr
+}
+
 func GetHostname(id int, office string) string {
 	hostname := ""
 
@@ -612,7 +648,7 @@ func GetHostname(id int, office string) string {
 	err := db.QueryRow(query, id).Scan(&hostname)
 
 	if err == sql.ErrNoRows {
-		log.Fatal(err)
+		log.Fatal("GetHostname() =",err)
 		return ""
 	} else if err != nil {
 		log.Fatal(err)
@@ -660,11 +696,17 @@ func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 				pctable = pckapit
 			}
 
-			_, err := db.Exec(`INSERT INTO ` + pctable + ` (hostname, ip, cpu_model, cpu_no, monitor_model, monitor_no, printer, user, department, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, hostname, ip, cpu_model, cpu_no, monitor_model, monitor_no, printer, user, department, notes)
+			result, err := db.Exec(`INSERT INTO ` + pctable + ` (hostname, ip, cpu_model, cpu_no, monitor_model, monitor_no, printer, user, department, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, hostname, ip, cpu_model, cpu_no, monitor_model, monitor_no, printer, user, department, notes)
 
 			if err != nil {
 				log.Println(err)
 			} else {
+				if len(printer) != 0 {
+					// update the printer too
+					lastid, _ := result.LastInsertId() // get last id being inserted on the pc table
+					ITDBPrinterHostUpdate(office, printer, int(lastid))
+				}
+
 				data := PageITDBStruct {
 					"",
 					username,
@@ -729,12 +771,18 @@ func ITDBPCEditSubmit(w http.ResponseWriter, r *http.Request) {
 
 			query := `UPDATE ` + pctable + ` SET hostname=?, ip=?, cpu_model=?, cpu_no=?, monitor_model=?, monitor_no=?, printer=?, user=?, department=?, notes=? WHERE id = ?`
 			_, err := db.Exec(query, hostname, ip, cpu_model, cpu_no, monitor_model, monitor_no, printer, user, department, notes, id)
-			if err != nil {
-				log.Fatal(err)
-			}
 			
-			http.Redirect(w, r, "/itdb/pc/" + office + "/view/" + id, 302)
-			//
+			if err != nil {
+				log.Println(err)
+			} else {
+				if len(printer) != 0 {
+					// update the printer too
+					idInt, _ := strconv.Atoi(id)
+					ITDBPrinterHostUpdate(office, printer, idInt)
+				}
+
+				http.Redirect(w, r, "/itdb/pc/" + office + "/view/" + id, 302)
+			}
 		} else {
 			http.Redirect(w, r, "/user", 302)
 		}
@@ -829,5 +877,36 @@ func ITDBPrinterEditSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		http.Redirect(w, r, "/", 302)
+	}
+}
+
+// function to update printer host column
+// remember: the host column is FK
+// this could involve multple printers/devices
+func ITDBPrinterHostUpdate(office string, printer string, pcid int) {
+	printertable := ""
+	switch(office) {
+	case "sibu":
+		printertable = printersibu
+	case "kapit":
+		printertable = printerkapit
+	}
+
+	// printer means the format used in storing printer as in PC
+	printerRowids := strings.Split(printer, " ")
+	fmt.Println("printerrowids ", printerRowids, " pcid ", pcid)
+
+	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+	if errOpen != nil {
+		log.Fatal(errOpen)
+	}
+	defer db.Close()
+
+	for i:=0; i<len(printerRowids); i++ {
+		query := `UPDATE ` + printertable + ` SET host=? WHERE rowid=?`
+		_, err := db.Exec(query, pcid, printerRowids[i])
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 }
