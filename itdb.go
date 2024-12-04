@@ -744,14 +744,11 @@ func ITDBPCEditSubmit(w http.ResponseWriter, r *http.Request) {
 			// have to check because sometimes there are no printer to be set
 			printer := "" //default
 			if r.PostForm.Has("printer") {
-				//fmt.Println("len ", len(r.Form["printer"])," ", r.Form["printer"][0], " ", r.Form["printer"][1])
-				// format for storing printers in table is "{printerno}{whitespace}{printerno}"
-				for i:=0; i<len(r.Form["printer"]); i++ {
-					printer += r.Form["printer"][i]
-					if i+1!=len(r.Form["printer"]) {
-						printer += " "
-					}
+				var s []string
+				for index := range r.Form["printer"] {
+					s = append(s, r.Form["printer"][index])
 				}
+				printer = strings.Join(s, " ")
 			}
 
 			db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
