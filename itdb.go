@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strconv"
 	"net/http"
@@ -79,6 +78,7 @@ func ITDBHandler(r *mux.Router) {
 	r.HandleFunc("/itdb/pc/{office}/edit/{id}", PageITDBPCEdit) // PC Edit
 	r.HandleFunc("/itdb/pc/{office}/edit/{id}/submit", ITDBPCEditSubmit)
 	r.HandleFunc("/itdb/pc/{office}/view/{id}", PageITDBPCView)
+	r.HandleFunc("/itdb/pc/{office}/delete/{id}", ITDBPCDelete)
 	r.HandleFunc("/itdb/printer/{office}", PageITDBPrinter)
 	r.HandleFunc("/itdb/printer/{office}/add", PageITDBPrinterAdd)
 	r.HandleFunc("/itdb/printer/{office}/add/submit", ITDBPrinterAddSubmit)
@@ -656,14 +656,10 @@ func (p Printer) PrinterChecked(office string, rowid int) string {
 	err = db.QueryRow(query, rowid).Scan(&hostInt)
 
 	if hostInt.Valid {
-		fmt.Println("hostStr ",hostInt.Int64)
 		checkedStr = "checked"
 	} else {
 		checkedStr = ""
 	}
-
-	//TEST
-	fmt.Println("len(office)=", len(office), " checkedStr=", checkedStr)
 
 	return checkedStr
 }
@@ -703,7 +699,7 @@ func GetHostname(id int, office string) string {
 // function to handle add new PC
 func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 	if IsAuthenticated(w,r) {
-		username, usergroup := GetUserSession(r)
+		_, usergroup := GetUserSession(r)
 		if AccessITDB(usergroup) {
 			r.ParseForm()
 
@@ -749,14 +745,7 @@ func ITDBPCAddSubmit(w http.ResponseWriter, r *http.Request) {
 					ITDBPrinterHostUpdate(office, printer, int(lastid))
 				}
 
-				data := PageITDBStruct {
-					"",
-					username,
-					"",
-					"",
-				}
-				tmpl := template.Must(template.ParseFiles("template/itdb/index.html"))
-				tmpl.Execute(w, data)
+				http.Redirect(w, r, "/itdb/pc/"+office, 302)
 			}
 		} else {
 			http.Redirect(w, r, "/user", 302)
@@ -838,6 +827,44 @@ func ITDBPCEditSubmit(w http.ResponseWriter, r *http.Request) {
 
 				http.Redirect(w, r, "/itdb/pc/" + office + "/view/" + id, 302)
 			}
+		} else {
+			http.Redirect(w, r, "/user", 302)
+		}
+	} else {
+		http.Redirect(w, r, "/", 302)
+	}
+}
+
+func ITDBPCDelete(w http.ResponseWriter, r *http.Request) {
+	if IsAuthenticated(w,r) {
+		_, usergroup := GetUserSession(r)
+		if AccessITDB(usergroup) {
+			office := mux.Vars(r)["office"]
+			id := mux.Vars(r)["id"] // because pc tables use id instead of rowid
+			idInt,_ := strconv.Atoi(id)
+
+			// decides which table
+			pctable := ""
+			switch(office) {
+			case "sibu":
+				pctable = pcsibu
+			case "kapit":
+				pctable = pckapit
+			}
+
+			db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+			if errOpen != nil {
+				log.Fatal(errOpen)
+			}
+			defer db.Close()
+
+			query := `DELETE FROM ` + pctable + ` WHERE id = ?`
+			_, err := db.Exec(query, idInt)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			http.Redirect(w, r, "/itdb/pc/"+office, 302)
 		} else {
 			http.Redirect(w, r, "/user", 302)
 		}
@@ -949,7 +976,6 @@ func ITDBPrinterHostUpdate(office string, printer string, pcid int) {
 
 	// printer means the format used in storing printer as in PC
 	printerRowids := strings.Split(printer, " ")
-	fmt.Println("printerrowids ", printerRowids, " pcid ", pcid)
 
 	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
 	if errOpen != nil {
@@ -1013,6 +1039,4 @@ func ITDBPrinterSetHostEmpty(office string, rowid int) {
 
 	query := `UPDATE ` + printertable + ` SET host = NULL WHERE rowid = ?`
 	db.Exec(query, rowid)
-
-	fmt.Println("I was here")
 }
