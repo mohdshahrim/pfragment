@@ -206,7 +206,8 @@ func PageITDBPCEdit(w http.ResponseWriter, r *http.Request) {
 				office,
 				userbasic,
 				GetPCById(office, idInt),
-				GetPrinter(office),
+				//GetPrinter(office),
+				append(GetPrinterNoHost(office), HostedPrinters(office,idInt)...),
 			}
 
 			tmpl := template.Must(template.ParseFiles("template/itdb/editpc.html"))
@@ -375,6 +376,47 @@ func GetPrinterNoHost(office string) []Printer {
 		log.Fatal("GetPrinterNoHost() no rows ", err)
 	} else if err != nil {
 		log.Fatal("func GetPrinterNoHost() return err nil ", err)
+	}
+
+    defer row.Close()
+    for row.Next() {
+        printer := Printer{}
+		printer.Office = office
+        err := row.Scan(&printer.Rowid, &printer.Printermodel, &printer.Printerno, &printer.Printertype, &printer.Notes, &printer.Host, &printer.Nickname)
+        if err != nil {
+            log.Fatal(err)
+        }
+        printerstruct = append(printerstruct, printer)
+    }
+
+    return printerstruct
+}
+
+
+func HostedPrinters(office string, id int) []Printer {
+	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+	if errOpen != nil {
+		log.Fatal("error opening itdb.db ", errOpen)
+	}
+	defer db.Close()
+
+    var printerstruct []Printer
+
+	query := ""
+
+	switch(office) {
+	case "sibu":
+		query = "SELECT rowid, * FROM " + printersibu + " WHERE host=?"
+	case "kapit":
+		query = "SELECT rowid, * FROM " + printerkapit + " WHERE host=?"
+	}
+
+    row, err := db.Query(query, id)
+	
+	if err == sql.ErrNoRows {
+		log.Fatal("HostedPrinters() no rows ", err)
+	} else if err != nil {
+		log.Fatal("HostedPrinters() return err nil ", err)
 	}
 
     defer row.Close()
@@ -609,12 +651,12 @@ func (p Printer) PrinterChecked(office string, rowid int) string {
 	}
 	defer db.Close()
 
-	var hostStr sql.NullString
+	var hostInt sql.NullInt64
 	query := `SELECT host FROM ` + printertable + ` WHERE rowid=?`
-	err = db.QueryRow(query, rowid).Scan(&hostStr)
+	err = db.QueryRow(query, rowid).Scan(&hostInt)
 
-	if hostStr.Valid {
-		fmt.Println("hostStr ",hostStr.String)
+	if hostInt.Valid {
+		fmt.Println("hostStr ",hostInt.Int64)
 		checkedStr = "checked"
 	} else {
 		checkedStr = ""
@@ -750,6 +792,22 @@ func ITDBPCEditSubmit(w http.ResponseWriter, r *http.Request) {
 				}
 				printer = strings.Join(s, " ")
 			}
+
+			// procedures performed before the update
+			intid, _ := strconv.Atoi(id)
+			hostedprinters := ITDBGetHostedPrinters(office, intid)
+			if len(hostedprinters)!=0 {
+				// split into string slices
+				var s []string
+				s = strings.Fields(hostedprinters)
+				
+				// loop to update every printer rowids
+				for index := range s {
+					intindex, _ := strconv.Atoi(s[index])
+					ITDBPrinterSetHostEmpty(office, intindex)
+				}
+			}
+
 
 			db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
 			if errOpen != nil {
@@ -906,4 +964,55 @@ func ITDBPrinterHostUpdate(office string, printer string, pcid int) {
 			log.Fatal(err)
 		}
 	}
+}
+
+// function to get value on printer field
+func ITDBGetHostedPrinters(office string, pcid int) string {
+	pctable := ""
+	switch(office) {
+	case "sibu":
+		pctable = pcsibu
+	case "kapit":
+		pctable = pckapit
+	}
+
+	strPrinter := ""
+
+	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+	if errOpen != nil {
+		log.Fatal(errOpen)
+	}
+	defer db.Close()
+
+	query := `SELECT printer FROM `+pctable+` WHERE id = ?`
+	err := db.QueryRow(query, pcid).Scan(&strPrinter)
+
+	if err == sql.ErrNoRows {
+		log.Fatal(err)
+	} else if err != nil {
+		log.Fatal(err)
+	}
+
+	return strPrinter
+}
+
+func ITDBPrinterSetHostEmpty(office string, rowid int) {
+	printertable := ""
+	switch(office) {
+	case "sibu":
+		printertable = printersibu
+	case "kapit":
+		printertable = printerkapit
+	}
+
+	db, errOpen := sql.Open("sqlite3", "./database/itdb.db")
+	if errOpen != nil {
+		log.Fatal(errOpen)
+	}
+	defer db.Close()
+
+	query := `UPDATE ` + printertable + ` SET host = NULL WHERE rowid = ?`
+	db.Exec(query, rowid)
+
+	fmt.Println("I was here")
 }
